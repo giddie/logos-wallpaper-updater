@@ -26,21 +26,53 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "mainWindow.moc"
+#include <QtGui>
+#include "wallpaperGetter.moc"
 
 
 /**
  * Constructor
  */
-MainWindow::MainWindow(QWidget* parent)
-  : QMainWindow(parent)
+WallpaperGetter::WallpaperGetter(QObject* parent)
+  : QObject(parent), manager(new QNetworkAccessManager(this))
 {
-  this->ui.setupUi(this);
+  connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+          this, SLOT(replyFinished(QNetworkReply*)));
 }
 
 /**
  * Destructor
  */
-MainWindow::~MainWindow()
+WallpaperGetter::~WallpaperGetter()
 {
+}
+
+void WallpaperGetter::getPaper()
+{
+  int month = QDate::currentDate().month();
+  int year = QDate::currentDate().year();
+  QString size = "1280x800";
+  QUrl url = QString("http://www.omships.org/images/desktops/%1-%2-%3.jpg").
+                  arg(month).arg(year).arg(size);
+
+  QNetworkReply* reply = this->manager->get(QNetworkRequest(url));
+}
+
+void WallpaperGetter::replyFinished(QNetworkReply* reply)
+{
+  QString pictureDir =
+    QDesktopServices::storageLocation(QDesktopServices::PicturesLocation);
+  QFile file(pictureDir + "logos-wallpaper.jpg");
+  if (!file.open(QIODevice::WriteOnly)) {
+    return;
+  }
+  file.write(reply->readAll());
+  file.close();
+
+  QProcess proc;
+  QDir scriptDir(QCoreApplication::applicationDirPath());
+  scriptDir.cd("../Resources/Scripts");
+  proc.setWorkingDirectory(scriptDir.path());
+  proc.start("./setWallpaper");
+  proc.waitForFinished();
 }

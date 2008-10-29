@@ -26,23 +26,26 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef WALLPAPERGETTER_H
+#define WALLPAPERGETTER_H
 
-#include <QtGui>
-#include "ui_mainWindow.h"
+#include <QtNetwork>
 
 
-class MainWindow : public QMainWindow
+class WallpaperGetter : public QObject
 {
   Q_OBJECT
 
   public:
-    MainWindow(QWidget* parent = 0);
-    ~MainWindow();
+    WallpaperGetter(QObject* parent = 0);
+    ~WallpaperGetter();
+    void getPaper();
+
+  private slots:
+    void replyFinished(QNetworkReply* reply);
 
   private:
-    Ui::MainWindow ui;
+    QNetworkAccessManager* manager;
 };
 
 #endif

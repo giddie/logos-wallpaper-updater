@@ -31,19 +31,26 @@
 #################################################
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(
+  ${QT_INCLUDE_DIR}
+  ${QT_QTNETWORK_INCLUDE_DIR}
+)
 
 
 #################################################
 # Targets
 #################################################
-file(GLOB LOGOS_MONTHLY_UIS *.ui)
-file(GLOB LOGOS_MONTHLY_SOURCES *.cpp)
+file(GLOB LOGOS-MONTHLY_UIS *.ui)
+file(GLOB LOGOS-MONTHLY_SOURCES *.cpp)
 
-qt4_wrap_ui(LOGOS_MONTHLY_UIS_H ${LOGOS_MONTHLY_UIS})
-qt4_automoc(${LOGOS_MONTHLY_SOURCES})
+qt4_wrap_ui(LOGOS-MONTHLY_UIS_H ${LOGOS-MONTHLY_UIS})
+qt4_automoc(${LOGOS-MONTHLY_SOURCES})
 
 add_executable(logos-monthly WIN32 MACOSX_BUNDLE
-  ${LOGOS_MONTHLY_UIS_H}
-  ${LOGOS_MONTHLY_SOURCES}
+  ${LOGOS-MONTHLY_UIS_H}
+  ${LOGOS-MONTHLY_SOURCES}
 )
-target_link_libraries(logos-monthly ${QT_LIBRARIES})
+target_link_libraries(logos-monthly
+  ${QT_LIBRARIES}
+  ${QT_QTNETWORK_LIBRARIES}
+)

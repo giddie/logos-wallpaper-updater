@@ -1,0 +1,87 @@
+#!/bin/bash
+###
+# Original Author: Paul Gideon Dann <pdgiddie@gmail.com>
+###
+
+##
+# Sanity checks
+##
+if [[ $# != 1 ]]; then
+  echo "Usage: qtbundle <bundle-path>"
+  exit 1
+fi
+if [ ! -e $1 ]; then
+  echo "$1 does not exist!"
+  exit 1
+fi
+
+##
+# Removes everything before the Framework directory from the given dependency
+# path
+##
+nameStub() {
+  NAME_STUB=`echo $1 | sed 's_.*\/\(Qt.*framework.*\)$_\1_'`
+}
+
+##
+# Converts a full dylib path to a local bundle framework path
+##
+localName() {
+  nameStub $1
+  LOCAL_NAME="@executable_path/../Frameworks/"$NAME_STUB
+}
+
+##
+# Alters the given executable's absolute dependency paths to point to local
+# framework dylib paths instead of the original
+##
+fixDependencyPaths() {
+  # This regular expression includes the exclusion of the title line (hence the
+  # leading spaces), and the following slash excludes lines beginning with
+  # @executable_path
+  QT_DEPENDS=`otool -L $1 2> /dev/null | \
+              grep -e "[[:space:]]\+/.*\/Qt.*\.framework" | awk '{print $1}'`
+  if [[ $? == 0 ]]; then
+    for dependency in $QT_DEPENDS; do
+      # Only add to required modules if it's not already there
+      echo $REQUIRED_QT_MODULES | grep $dependency > /dev/null
+      if [[ $? != 0 ]]; then
+        REQUIRED_QT_MODULES="$REQUIRED_QT_MODULES $dependency"
+      fi
+      localName $dependency
+      install_name_tool -change $dependency $LOCAL_NAME $1
+    done
+  fi
+}
+
+##
+# Fix the dependencies for each executable in the bundle
+##
+echo "Fixing bundle executables:"
+EXECUTABLES=`ls $1/Contents/MacOS/* 2> /dev/null`
+if [[ $? != 0 ]]; then
+  echo "  Can't find any executables in $1.  Are you sure it's a bundle?"
+  exit 1
+fi
+for file in $EXECUTABLES; do
+  FILE_NAME=`echo $file | awk -F / '{print $NF}'`
+  echo "  "$FILE_NAME
+  fixDependencyPaths $file
+done
+
+##
+# Copy the required Qt modules into the bundle & fix their IDs and dependencies
+##
+echo "Copying and fixing Qt Frameworks:"
+for framework in $REQUIRED_QT_MODULES; do
+  QT_MODULE_NAME=`echo $framework | awk -F / '{print $NF}'`
+  echo "  "$QT_MODULE_NAME
+  nameStub $framework
+  DESTINATION_FILE="$1/Contents/Frameworks/"$NAME_STUB
+  DESTINATION_DIR=`echo $DESTINATION_FILE | sed 's_\(.*\)\/.*$_\1_'`
+  mkdir -p $DESTINATION_DIR
+  cp $framework $DESTINATION_DIR
+  localName $DESTINATION_FILE
+  install_name_tool -id $LOCAL_NAME $DESTINATION_FILE
+  fixDependencyPaths $DESTINATION_FILE
+done

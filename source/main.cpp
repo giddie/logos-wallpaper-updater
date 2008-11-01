@@ -26,19 +26,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <QtGui>
-#include "wallpaperGetter.h"
+#include "application.h"
 
 
 int main(int argc, char* argv[])
 {
-  QApplication app(argc, argv);
-
-  WallpaperGetter wpGetter;
-  wpGetter.getPaper();
-
-  QLabel label("Hello, one two three four.");
-  label.show();
-
+  Application app(argc, argv);
   return app.exec();
 }

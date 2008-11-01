@@ -1,0 +1,42 @@
+<ui version="4.0" >
+ <class>ProgressWidget</class>
+ <widget class="QWidget" name="ProgressWidget" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>317</width>
+    <height>69</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Logos Hope Wallpaper</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QLabel" name="label" >
+     <property name="font" >
+      <font>
+       <pointsize>17</pointsize>
+      </font>
+     </property>
+     <property name="text" >
+      <string>Please wait...</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar" >
+     <property name="value" >
+      <number>24</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

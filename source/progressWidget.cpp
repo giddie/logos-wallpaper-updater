@@ -26,39 +26,44 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WALLPAPERGETTER_H
-#define WALLPAPERGETTER_H
-
-#include <QtNetwork>
-#include "progressWidget.h"
+#include "progressWidget.moc"
 
 
-class WallpaperGetter : public QObject
+/**
+ * Constructor
+ */
+ProgressWidget::ProgressWidget(QWidget* parent)
+  : QWidget(parent)
 {
-  Q_OBJECT
+  this->ui.setupUi(this);
+  this->setAttribute(Qt::WA_MacMetalStyle);
+}
 
-  public:
-    enum ProgressReportType { REPORT_WHEN_DONE, SHOW_PROGRESS_WIDGET };
-    WallpaperGetter(QObject* parent = 0);
-    ~WallpaperGetter();
-    void refreshWallpaper(ProgressReportType progressReportType);
-    bool widescreen() const;
+/**
+ * Destructor
+ */
+ProgressWidget::~ProgressWidget()
+{
+}
 
-  public slots:
-    void refreshWallpaperQuietly();
-    void refreshWallpaperWithProgress();
-    void setWidescreen(bool widescreen);
+/**
+ * Updates the progress bar
+ */
+void ProgressWidget::setProgress(qint64 value, qint64 total)
+{
+  this->ui.progressBar->setMaximum(total);
+  this->ui.progressBar->setValue(value);
+}
 
-  private slots:
-    void loadingFinished(QNetworkReply* reply);
-    void setWallpaper(QFile& file);
-    void reportWallpaperChange();
-
-  private:
-    QNetworkAccessManager* mManager;
-    ProgressWidget* mProgressWidget;
-    QDir mWallpaperDir;
-    bool mWidescreen;
-};
-
-#endif
+/**
+ * Reports an error
+ */
+void ProgressWidget::reportError(QString errorString)
+{
+  // This widget may not be showing, in which case we won't show the error
+  if (this->isVisible()) {
+    QMessageBox::critical(this, tr("Error"),
+                          tr("An error occured when trying to set the "
+                             "latest wallpaper:\n\n") + errorString);
+  }
+}

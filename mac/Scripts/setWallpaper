@@ -1,0 +1,6 @@
+#!/usr/bin/osascript
+
+on run argv
+  set wpPath to item 1 of argv
+  tell application "Finder" to set desktop picture to POSIX file wpPath
+end run

@@ -26,39 +26,27 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WALLPAPERGETTER_H
-#define WALLPAPERGETTER_H
+#ifndef PROGRESSWIDGET_H
+#define PROGRESSWIDGET_H
 
-#include <QtNetwork>
-#include "progressWidget.h"
+#include <QtGui>
+#include "ui_progressWidget.h"
 
 
-class WallpaperGetter : public QObject
+class ProgressWidget : public QWidget
 {
   Q_OBJECT
 
   public:
-    enum ProgressReportType { REPORT_WHEN_DONE, SHOW_PROGRESS_WIDGET };
-    WallpaperGetter(QObject* parent = 0);
-    ~WallpaperGetter();
-    void refreshWallpaper(ProgressReportType progressReportType);
-    bool widescreen() const;
+    ProgressWidget(QWidget* parent = 0);
+    ~ProgressWidget();
 
   public slots:
-    void refreshWallpaperQuietly();
-    void refreshWallpaperWithProgress();
-    void setWidescreen(bool widescreen);
-
-  private slots:
-    void loadingFinished(QNetworkReply* reply);
-    void setWallpaper(QFile& file);
-    void reportWallpaperChange();
+    void setProgress(qint64 value, qint64 total);
+    void reportError(QString errorString);
 
   private:
-    QNetworkAccessManager* mManager;
-    ProgressWidget* mProgressWidget;
-    QDir mWallpaperDir;
-    bool mWidescreen;
+    Ui::ProgressWidget ui;
 };
 
 #endif

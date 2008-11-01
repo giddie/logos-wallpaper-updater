@@ -28,16 +28,40 @@
 
 #include <QtGui>
 #include "wallpaperGetter.moc"
+#include "application.h"
+#include "defines.h"
 
 
 /**
  * Constructor
  */
 WallpaperGetter::WallpaperGetter(QObject* parent)
-  : QObject(parent), manager(new QNetworkAccessManager(this))
+  : QObject(parent)
 {
-  connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-          this, SLOT(replyFinished(QNetworkReply*)));
+  this->mManager = new QNetworkAccessManager(this);
+  this->mProgressWidget = new ProgressWidget(NULL);
+  this->mWallpaperDir =
+    QDesktopServices::storageLocation(QDesktopServices::PicturesLocation) +
+    "logos-wallpaper";
+
+  QSettings settings;
+  QVariant widescreenSetting = settings.value("widescreen");
+  if (!widescreenSetting.isNull()) {
+    this->mWidescreen = widescreenSetting.toBool();
+  } else {
+    // Determine screen ratio (widescreen or not)
+    QDesktopWidget* desktop = qobject_cast<Application*>(qApp)->desktop();
+    int primaryScreen = desktop->primaryScreen();
+    QRect screen = desktop->screenGeometry(primaryScreen);
+    double ratio = (double)screen.width() / screen.height();
+    this->mWidescreen = ratio == 1.6;
+    settings.setValue("widescreen", this->mWidescreen);
+  }
+
+  connect(this->mManager, SIGNAL(finished(QNetworkReply*)),
+          this, SLOT(loadingFinished(QNetworkReply*)));
+  connect(this->mManager, SIGNAL(finished(QNetworkReply*)),
+          this->mProgressWidget, SLOT(hide()));
 }
 
 /**
@@ -45,34 +69,146 @@ WallpaperGetter::WallpaperGetter(QObject* parent)
  */
 WallpaperGetter::~WallpaperGetter()
 {
+  delete this->mProgressWidget;
 }
 
-void WallpaperGetter::getPaper()
+/**
+ * Starts downloading this month's wallpaper
+ */
+void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
 {
   int month = QDate::currentDate().month();
   int year = QDate::currentDate().year();
-  QString size = "1280x800";
-  QUrl url = QString("http://www.omships.org/images/desktops/%1-%2-%3.jpg").
-                  arg(month).arg(year).arg(size);
+  QString size = this->widescreen() ? "1280x800" : "1280x960";
+  QString filename =
+    QString("%1-%2-%3.jpg").arg(month, 2, 10, QChar('0')).arg(year).arg(size);
 
-  QNetworkReply* reply = this->manager->get(QNetworkRequest(url));
+  QUrl url = "http://www.omships.org/images/desktops/" + filename;
+  QFile file(this->mWallpaperDir.path() + "/" + filename);
+
+  if (file.exists()) {
+    this->setWallpaper(file);
+    if (progressReportType == REPORT_WHEN_DONE) {
+      this->reportWallpaperChange();
+    }
+  } else {
+    QNetworkReply* reply = this->mManager->get(QNetworkRequest(url));
+    connect(reply, SIGNAL(downloadProgress(qint64, qint64)),
+            this->mProgressWidget, SLOT(setProgress(qint64, qint64)));
+
+    // If we're going to display a message when done, we tag the reply
+    if (progressReportType == REPORT_WHEN_DONE) {
+      reply->setProperty("reportWhenDone", true);
+    }
+
+    // Show progress window
+    if (progressReportType == SHOW_PROGRESS_WIDGET) {
+      this->mProgressWidget->setProgress(0, 1);
+      this->mProgressWidget->show();
+      this->mProgressWidget->raise();
+    }
+  }
+  month++;
 }
 
-void WallpaperGetter::replyFinished(QNetworkReply* reply)
+/**
+ * Convenience slot
+ */
+void WallpaperGetter::refreshWallpaperQuietly()
 {
-  QString pictureDir =
-    QDesktopServices::storageLocation(QDesktopServices::PicturesLocation);
-  QFile file(pictureDir + "logos-wallpaper.jpg");
-  if (!file.open(QIODevice::WriteOnly)) {
-    return;
-  }
-  file.write(reply->readAll());
-  file.close();
+  this->refreshWallpaper(REPORT_WHEN_DONE);
+}
 
-  QProcess proc;
-  QDir scriptDir(QCoreApplication::applicationDirPath());
-  scriptDir.cd("../Resources/Scripts");
-  proc.setWorkingDirectory(scriptDir.path());
-  proc.start("./setWallpaper");
-  proc.waitForFinished();
+/**
+ * Convenience slot
+ */
+void WallpaperGetter::refreshWallpaperWithProgress()
+{
+  this->refreshWallpaper(SHOW_PROGRESS_WIDGET);
+}
+
+/**
+ * Called when the wallpaper has finished downloading
+ */
+void WallpaperGetter::loadingFinished(QNetworkReply* reply)
+{
+  if (reply->error() == QNetworkReply::NoError) {
+    if (!this->mWallpaperDir.exists()) {
+      if (!this->mWallpaperDir.mkpath(".")) {
+        this->mProgressWidget->
+          reportError(tr("Unable to create directory:\n") +
+                      this->mWallpaperDir.path());
+        return;
+      }
+    }
+
+    QString filename =
+      reply->url().path().split('/', QString::SkipEmptyParts).last();
+    QFile file(this->mWallpaperDir.path() + '/' + filename);
+    if (!file.open(QIODevice::WriteOnly)) {
+      this->mProgressWidget->
+        reportError(tr("Unable to write to file:\n") + file.fileName());
+      return;
+    }
+    file.write(reply->readAll());
+    file.close();
+
+    this->setWallpaper(file);
+
+    // Display a message if requested
+    if (reply->property("reportWhenDone").toBool()) {
+      this->reportWallpaperChange();
+    }
+  } else {
+    this->mProgressWidget->reportError(reply->errorString());
+  }
+  reply->deleteLater();
+}
+
+/**
+ * Set the wallpaper to the given file
+ */
+void WallpaperGetter::setWallpaper(QFile& file)
+{
+  if (MACOS_X) {
+    QProcess proc;
+    QDir scriptDir(QCoreApplication::applicationDirPath());
+    scriptDir.cd("../Resources/Scripts");
+    proc.setWorkingDirectory(scriptDir.path());
+    proc.start("./setWallpaper", QStringList() << file.fileName());
+    proc.waitForFinished();
+  } else {
+    this->mProgressWidget->
+      reportError(tr("This platform is not supported; "
+                     "unable to set the wallpaper."));
+  }
+}
+
+/**
+ * Displays a message to the user telling him/her that the wallpaper has changed
+ */
+void WallpaperGetter::reportWallpaperChange()
+{
+  qobject_cast<Application*>(qApp)->
+    showTrayMessage(tr("Logos Hope Wallpaper"),
+                    tr("Your wallpaper has been updated."));
+}
+
+/**
+ * Getter
+ */
+bool WallpaperGetter::widescreen() const
+{
+  return this->mWidescreen;
+}
+
+/**
+ * Setter slot
+ */
+void WallpaperGetter::setWidescreen(bool widescreen)
+{
+  this->mWidescreen = widescreen;
+  QSettings settings;
+  settings.setValue("widescreen", widescreen);
+  this->refreshWallpaper(SHOW_PROGRESS_WIDGET);
 }

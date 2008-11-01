@@ -44,20 +44,6 @@ WallpaperGetter::WallpaperGetter(QObject* parent)
     QDesktopServices::storageLocation(QDesktopServices::PicturesLocation) +
     "logos-wallpaper";
 
-  QSettings settings;
-  QVariant widescreenSetting = settings.value("widescreen");
-  if (!widescreenSetting.isNull()) {
-    this->mWidescreen = widescreenSetting.toBool();
-  } else {
-    // Determine screen ratio (widescreen or not)
-    QDesktopWidget* desktop = qobject_cast<Application*>(qApp)->desktop();
-    int primaryScreen = desktop->primaryScreen();
-    QRect screen = desktop->screenGeometry(primaryScreen);
-    double ratio = (double)screen.width() / screen.height();
-    this->mWidescreen = ratio == 1.6;
-    settings.setValue("widescreen", this->mWidescreen);
-  }
-
   connect(this->mManager, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(loadingFinished(QNetworkReply*)));
   connect(this->mManager, SIGNAL(finished(QNetworkReply*)),
@@ -79,7 +65,14 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
 {
   int month = QDate::currentDate().month();
   int year = QDate::currentDate().year();
-  QString size = this->widescreen() ? "1280x800" : "1280x960";
+
+  // Determine screen ratio (widescreen or not)
+  QDesktopWidget* desktop = qobject_cast<Application*>(qApp)->desktop();
+  int primaryScreen = desktop->primaryScreen();
+  QRect screen = desktop->screenGeometry(primaryScreen);
+  double ratio = (double)screen.width() / screen.height();
+  QString size = (ratio == 1.6) ? "1280x800" : "1280x960";
+
   QString filename =
     QString("%1-%2-%3.jpg").arg(month, 2, 10, QChar('0')).arg(year).arg(size);
 
@@ -192,23 +185,4 @@ void WallpaperGetter::reportWallpaperChange()
   qobject_cast<Application*>(qApp)->
     showTrayMessage(tr("Logos Hope Wallpaper"),
                     tr("Your wallpaper has been updated."));
-}
-
-/**
- * Getter
- */
-bool WallpaperGetter::widescreen() const
-{
-  return this->mWidescreen;
-}
-
-/**
- * Setter slot
- */
-void WallpaperGetter::setWidescreen(bool widescreen)
-{
-  this->mWidescreen = widescreen;
-  QSettings settings;
-  settings.setValue("widescreen", widescreen);
-  this->refreshWallpaper(SHOW_PROGRESS_WIDGET);
 }

@@ -42,12 +42,10 @@ class WallpaperGetter : public QObject
     WallpaperGetter(QObject* parent = 0);
     ~WallpaperGetter();
     void refreshWallpaper(ProgressReportType progressReportType);
-    bool widescreen() const;
 
   public slots:
     void refreshWallpaperQuietly();
     void refreshWallpaperWithProgress();
-    void setWidescreen(bool widescreen);
 
   private slots:
     void loadingFinished(QNetworkReply* reply);
@@ -58,7 +56,6 @@ class WallpaperGetter : public QObject
     QNetworkAccessManager* mManager;
     ProgressWidget* mProgressWidget;
     QDir mWallpaperDir;
-    bool mWidescreen;
 };
 
 #endif

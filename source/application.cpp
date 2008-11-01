@@ -54,12 +54,6 @@ Application::Application(int& argc, char** argv)
   connect(action, SIGNAL(triggered(bool)),
           this->mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
 
-  action = this->mTrayMenu->addAction(tr("Widescreen"));
-  action->setCheckable(true);
-  action->setChecked(this->mWallpaperGetter->widescreen());
-  connect(action, SIGNAL(triggered(bool)),
-          this->mWallpaperGetter, SLOT(setWidescreen(bool)));
-
   action = this->mTrayMenu->addSeparator();
 
   action = this->mTrayMenu->addAction(tr("Close"));

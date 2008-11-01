@@ -1,5 +1,6 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-  <file>trayicon-16.png</file>
-</qresource>
+<RCC>
+  <qresource>
+    <file>logo.png</file>
+    <file>trayicon-16.png</file>
+  </qresource>
 </RCC>

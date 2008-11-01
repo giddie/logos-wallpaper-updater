@@ -36,7 +36,6 @@ ProgressWidget::ProgressWidget(QWidget* parent)
   : QWidget(parent)
 {
   this->ui.setupUi(this);
-  this->setAttribute(Qt::WA_MacMetalStyle);
 }
 
 /**

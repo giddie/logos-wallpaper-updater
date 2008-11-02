@@ -31,3 +31,9 @@
 #else
 #define MACOS_X 0
 #endif
+
+#ifdef Q_WS_WIN
+#define WINDOWS 1
+#else
+#define WINDOWS 0
+#endif

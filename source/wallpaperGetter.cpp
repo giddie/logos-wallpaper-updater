@@ -31,6 +31,10 @@
 #include "application.h"
 #include "defines.h"
 
+#ifdef Q_WS_WIN
+#include <windows.h>
+#endif
+
 
 /**
  * Constructor
@@ -173,6 +177,24 @@ void WallpaperGetter::setWallpaper(QFile& file)
     proc.setWorkingDirectory(scriptDir.path());
     proc.start("./setWallpaper", QStringList() << file.fileName());
     proc.waitForFinished();
+  } else if (WINDOWS) {
+    QSettings appSettings("HKEY_CURRENT_USER\\Control Panel\\Desktop",
+                          QSettings::NativeFormat);
+    QString path = QDir::toNativeSeparators(file.fileName());
+
+    // Convert the JPG to BMP (because Windows is stupid)
+    QImage image(path);
+    int suffixPosition = path.lastIndexOf("jpg");
+    path = path.replace(suffixPosition, 3, "bmp");
+    image.save(path);
+
+    // Update registry & tell Windows to update
+    appSettings.setValue("Wallpaper", path);
+    QByteArray pathByteArray = path.toLatin1();
+#ifdef Q_WS_WIN
+    SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (void*)pathByteArray.data(),
+                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+#endif
   } else {
     this->mProgressWidget->
       reportError(tr("This platform is not supported; "

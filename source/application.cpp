@@ -44,7 +44,7 @@ Application::Application(int& argc, char** argv)
   this->mWallpaperGetter = new WallpaperGetter(this);
   this->mMonthAtLastCheck = QDate::currentDate().month();
 
-  this->mTray = new QSystemTrayIcon(this);
+  this->mTray = new QSystemTrayIcon(NULL);
   mTray->setIcon(QIcon(":trayicon-16.png"));
 
   this->mTrayMenu = new QMenu(NULL);
@@ -78,6 +78,7 @@ Application::Application(int& argc, char** argv)
 Application::~Application()
 {
   delete this->mTrayMenu;
+  delete this->mTray;
 }
 
 /**

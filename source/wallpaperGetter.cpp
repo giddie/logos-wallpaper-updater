@@ -43,9 +43,15 @@ WallpaperGetter::WallpaperGetter(QObject* parent)
   : QObject(parent)
 {
   this->mManager = new QNetworkAccessManager(this);
-  this->mProgressWidget = new ProgressWidget(NULL);
   this->mWallpaperDir =
     QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+
+  this->mProgressWidget = new ProgressWidget(NULL);
+  QRect screen = QApplication::desktop()->screenGeometry();
+  QPoint topLeft = screen.center() -
+                     QPoint(this->mProgressWidget->width() / 2,
+                            this->mProgressWidget->height() / 2);
+  this->mProgressWidget->move(topLeft);
 
   connect(this->mManager, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(loadingFinished(QNetworkReply*)));

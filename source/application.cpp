@@ -37,7 +37,7 @@ Application::Application(int& argc, char** argv)
   : QApplication(argc, argv)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
-  QCoreApplication::setApplicationName("Logos Monthly");
+  QCoreApplication::setApplicationName("Logos Wallpaper Updater");
 
   this->setQuitOnLastWindowClosed(false);
 
@@ -46,6 +46,7 @@ Application::Application(int& argc, char** argv)
 
   this->mTray = new QSystemTrayIcon(NULL);
   mTray->setIcon(QIcon(":trayicon-16.png"));
+  mTray->setToolTip(QCoreApplication::applicationName());
 
   this->mTrayMenu = new QMenu(NULL);
   QAction* action;

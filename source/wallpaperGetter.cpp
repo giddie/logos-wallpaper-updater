@@ -70,7 +70,11 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
   int primaryScreen = desktop->primaryScreen();
   QRect screen = desktop->screenGeometry(primaryScreen);
   double ratio = (double)screen.width() / screen.height();
-  QString size = (ratio == 1.6) ? "1280x800" : "1280x960";
+  const double widescreen = 16.0 / 10;
+  const double standard = 4.0 / 3;
+  bool closerToWidescreen = ((ratio - widescreen) < (ratio - standard));
+
+  QString size = closerToWidescreen ? "1280x800" : "1280x960";
 
   QString filename =
     QString("%1-%2-%3.jpg").arg(month, 2, 10, QChar('0')).arg(year).arg(size);

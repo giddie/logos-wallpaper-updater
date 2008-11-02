@@ -50,9 +50,13 @@ Application::Application(int& argc, char** argv)
   this->mTrayMenu = new QMenu(NULL);
   QAction* action;
 
-  action = this->mTrayMenu->addAction(tr("Set wallpaper now"));
+  action = this->mTrayMenu->addAction(tr("Set wallpaper"));
   connect(action, SIGNAL(triggered(bool)),
           this->mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
+
+  action = this->mTrayMenu->addAction(tr("Open website"));
+  connect(action, SIGNAL(triggered(bool)),
+          this, SLOT(openWebsite()));
 
   action = this->mTrayMenu->addSeparator();
 
@@ -82,6 +86,14 @@ Application::~Application()
 void Application::showTrayMessage(QString title, QString message)
 {
   this->mTray->showMessage(title, message);
+}
+
+/**
+ * Opens the website
+ */
+void Application::openWebsite()
+{
+  QDesktopServices::openUrl(QUrl("http://www.logoshope.com"));
 }
 
 /**

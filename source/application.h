@@ -46,6 +46,9 @@ class Application : public QApplication
   public slots:
     void showTrayMessage(QString title, QString message);
 
+  private slots:
+    void openWebsite();
+
   private:
     QSystemTrayIcon* mTray;
     QMenu* mTrayMenu;

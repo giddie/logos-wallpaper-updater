@@ -41,8 +41,7 @@ WallpaperGetter::WallpaperGetter(QObject* parent)
   this->mManager = new QNetworkAccessManager(this);
   this->mProgressWidget = new ProgressWidget(NULL);
   this->mWallpaperDir =
-    QDesktopServices::storageLocation(QDesktopServices::PicturesLocation) +
-    "logos-wallpaper";
+    QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
   connect(this->mManager, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(loadingFinished(QNetworkReply*)));

@@ -72,6 +72,14 @@ if (APPLE)
   set(APP_MAC_FILES ${APP_MAC_RESOURCES} ${APP_MAC_SCRIPTS})
 endif (APPLE)
 
+if (WIN32)
+  set(APP_WINDOWS_RESFILE ${CMAKE_CURRENT_BINARY_DIR}/resources.obj)
+  add_custom_command(OUTPUT ${APP_WINDOWS_RESFILE}
+    COMMAND windres.exe resources.rc ${APP_WINDOWS_RESFILE}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/win
+  )
+endif (WIN32)
+
 qt4_wrap_ui(APP_UIS_H ${APP_UIS})
 qt4_add_resources(APP_RESOURCES ${APP_QRCS})
 qt4_automoc(${APP_SOURCES})
@@ -81,6 +89,7 @@ add_executable(${CMAKE_PROJECT_NAME} WIN32 MACOSX_BUNDLE
   ${APP_SOURCES}
   ${APP_RESOURCES}
   ${APP_MAC_FILES}
+  ${APP_WINDOWS_RESFILE}
 )
 target_link_libraries(${CMAKE_PROJECT_NAME}
   ${QT_LIBRARIES}

@@ -82,7 +82,7 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
   double ratio = (double)screen.width() / screen.height();
   const double widescreen = 16.0 / 10;
   const double standard = 4.0 / 3;
-  bool closerToWidescreen = ((ratio - widescreen) < (ratio - standard));
+  bool closerToWidescreen = (qAbs(ratio - widescreen) < qAbs(ratio - standard));
 
   QString size = closerToWidescreen ? "1280x800" : "1280x960";
 

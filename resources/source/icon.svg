@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2440"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   width="89"
+   height="92"
+   version="1.0"
+   sodipodi:docname="logo.svn"
+   inkscape:export-filename="/Users/dannpg/Desktop/trayicon-18.png"
+   inkscape:export-xdpi="13.48"
+   inkscape:export-ydpi="13.48"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <metadata
+     id="metadata2445">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2443">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective2447" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-height="750"
+     inkscape:window-width="1090"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="true"
+     inkscape:snap-bbox="true"
+     inkscape:zoom="1"
+     inkscape:cx="6.7539546"
+     inkscape:cy="-37.859321"
+     inkscape:window-x="24"
+     inkscape:window-y="22"
+     inkscape:current-layer="svg2440"
+     inkscape:snap-global="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2451"
+       visible="true"
+       enabled="true" />
+  </sodipodi:namedview>
+  <rect
+     style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#0f85c8;stroke-width:4.68338537;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="rect2453"
+     width="115.47261"
+     height="115.47261"
+     x="-14.785624"
+     y="-10.919221"
+     ry="23.025108"
+     inkscape:export-xdpi="11.98"
+     inkscape:export-ydpi="11.98"
+     inkscape:export-filename="/Users/dannpg/Desktop/trayicon-16.png" />
+  <image
+     xlink:href="logo.png"
+     sodipodi:absref="/Users/dannpg/Desktop/logo.png"
+     width="89"
+     height="92"
+     id="image2449"
+     x="0"
+     y="0" />
+</svg>

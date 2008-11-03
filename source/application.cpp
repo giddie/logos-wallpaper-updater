@@ -28,6 +28,7 @@
 
 #include <QtCore>
 #include "application.moc"
+#include "defines.h"
 
 
 /**
@@ -45,7 +46,11 @@ Application::Application(int& argc, char** argv)
   this->mMonthAtLastCheck = QDate::currentDate().month();
 
   this->mTray = new QSystemTrayIcon(NULL);
-  mTray->setIcon(QIcon(":trayicon-16.png"));
+  if (WINDOWS) {
+    mTray->setIcon(QIcon(":trayicon-16.png"));
+  } else {
+    mTray->setIcon(QIcon(":trayicon-18.png"));
+  }
   mTray->setToolTip(QCoreApplication::applicationName());
 
   this->mTrayMenu = new QMenu(NULL);

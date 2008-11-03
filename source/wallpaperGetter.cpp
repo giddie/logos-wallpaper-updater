@@ -146,6 +146,12 @@ void WallpaperGetter::loadingFinished(QNetworkReply* reply)
                       this->mWallpaperDir.path());
         return;
       }
+    } else {
+      // Clear out directory contents to avoid it just building
+      QStringList entries = this->mWallpaperDir.entryList(QDir::Files);
+      foreach (QString entry, entries) {
+        this->mWallpaperDir.remove(entry);
+      }
     }
 
     QString filename =

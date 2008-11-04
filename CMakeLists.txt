@@ -28,11 +28,13 @@
 
 cmake_minimum_required(VERSION 2.6.2)
 project(logos-wallpaper)
+set(APP_LONGNAME "Logos Wallpaper Updater")
 
 #################################################
 # Configuration
 #################################################
 find_package(Qt4 REQUIRED)
+set(QT_USE_QTNETWORK 1)
 include(${QT_USE_FILE})
 
 
@@ -40,15 +42,14 @@ include(${QT_USE_FILE})
 # Includes and Defines
 #################################################
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(
-  ${QT_INCLUDE_DIR}
-  ${QT_QTNETWORK_INCLUDE_DIR}
-)
 
 
 #################################################
 # Targets
 #################################################
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Licence.txt
+               ${CMAKE_CURRENT_BINARY_DIR}/Licence.txt COPYONLY)
+
 file(GLOB APP_UIS source/*.ui)
 file(GLOB APP_SOURCES source/*.cpp)
 file(GLOB APP_QRCS resources/*.qrc)
@@ -73,6 +74,8 @@ if (APPLE)
 endif (APPLE)
 
 if (WIN32)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/win/installer.nsi.cmake
+                 ${CMAKE_CURRENT_BINARY_DIR}/installer.nsi @ONLY)
   set(APP_WINDOWS_RESFILE ${CMAKE_CURRENT_BINARY_DIR}/resources.obj)
   add_custom_command(OUTPUT ${APP_WINDOWS_RESFILE}
     COMMAND windres.exe resources.rc ${APP_WINDOWS_RESFILE}
@@ -93,7 +96,6 @@ add_executable(${CMAKE_PROJECT_NAME} WIN32 MACOSX_BUNDLE
 )
 target_link_libraries(${CMAKE_PROJECT_NAME}
   ${QT_LIBRARIES}
-  ${QT_QTNETWORK_LIBRARIES}
 )
 
 if (APPLE)

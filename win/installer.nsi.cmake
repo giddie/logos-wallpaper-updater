@@ -32,6 +32,7 @@
 !define APP_LONGNAME "@APP_LONGNAME@"
 
 !define QT_DLL_DIR "@QT_LIBRARY_DIR@\..\bin"
+!define QT_PLUGINS_DIR "@QT_PLUGINS_DIR@"
 
 Name "${APP_LONGNAME}"
 OutFile "${APP_SHORTNAME}-setup.exe"
@@ -75,10 +76,16 @@ Section Install
 
   ; App files
   File "${APP_SHORTNAME}.exe"
+
   File "${QT_DLL_DIR}\mingwm10.dll"
+
+  File "qt.conf"
   File "${QT_DLL_DIR}\QtCore4.dll"
   File "${QT_DLL_DIR}\QtGui4.dll"
   File "${QT_DLL_DIR}\QtNetwork4.dll"
+
+  SetOutPath $INSTDIR\plugins\imageformats
+  File "${QT_PLUGINS_DIR}\imageformats\qjpeg4.dll"
 
   ; Uninstaller
   WriteRegStr HKLM "Software\${APP_LONGNAME}" "" $INSTDIR
@@ -105,10 +112,15 @@ Section Uninstall
 
   ; App files
   Delete "$INSTDIR\${APP_SHORTNAME}.exe"
+
   Delete "$INSTDIR\mingwm10.dll"
+
+  Delete "$INSTDIR\qt.conf"
   Delete "$INSTDIR\QtCore4.dll"
   Delete "$INSTDIR\QtGui4.dll"
   Delete "$INSTDIR\QtNetwork4.dll"
+
+  RMDir /r "$INSTDIR\plugins"
 
   ; Menu folder
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder

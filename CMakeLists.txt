@@ -76,6 +76,8 @@ endif (APPLE)
 if (WIN32)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/win/installer.nsi.cmake
                  ${CMAKE_CURRENT_BINARY_DIR}/installer.nsi @ONLY)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/win/qt.conf
+                 ${CMAKE_CURRENT_BINARY_DIR}/qt.conf COPYONLY)
   set(APP_WINDOWS_RESFILE ${CMAKE_CURRENT_BINARY_DIR}/resources.obj)
   add_custom_command(OUTPUT ${APP_WINDOWS_RESFILE}
     COMMAND windres.exe resources.rc ${APP_WINDOWS_RESFILE}

@@ -190,18 +190,17 @@ void WallpaperGetter::setWallpaper(QFile& file)
     proc.start("./setWallpaper", QStringList() << file.fileName());
     proc.waitForFinished();
   } else if (WINDOWS) {
-    QSettings appSettings("HKEY_CURRENT_USER\\Control Panel\\Desktop",
-                          QSettings::NativeFormat);
-    QString path = QDir::toNativeSeparators(file.fileName());
-
     // Convert the JPG to BMP (because Windows is stupid)
+    QString path = file.fileName();
     QImage image(path);
     int suffixPosition = path.lastIndexOf("jpg");
     path = path.replace(suffixPosition, 3, "bmp");
     image.save(path);
 
     // Update registry & tell Windows to update
-    appSettings.setValue("Wallpaper", path);
+    QSettings appSettings("HKEY_CURRENT_USER\\Control Panel\\Desktop",
+                          QSettings::NativeFormat);
+    appSettings.setValue("Wallpaper", QDir::toNativeSeparators(path));
     QByteArray pathByteArray = path.toLatin1();
 #ifdef Q_WS_WIN
     SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (void*)pathByteArray.data(),

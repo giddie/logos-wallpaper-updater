@@ -198,13 +198,10 @@ void WallpaperGetter::setWallpaper(QFile& file)
     image.save(path);
 
     // Update registry & tell Windows to update
-    QSettings appSettings("HKEY_CURRENT_USER\\Control Panel\\Desktop",
-                          QSettings::NativeFormat);
-    appSettings.setValue("Wallpaper", QDir::toNativeSeparators(path));
-    QByteArray pathByteArray = path.toLatin1();
+    QByteArray pathByteArray = QDir::toNativeSeparators(path).toLatin1();
 #ifdef Q_WS_WIN
     SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (void*)pathByteArray.data(),
-                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+                          SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 #endif
   } else {
     this->mProgressWidget->

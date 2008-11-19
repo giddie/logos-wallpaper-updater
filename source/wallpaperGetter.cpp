@@ -211,6 +211,7 @@ void WallpaperGetter::setWallpaper(QFile& file)
       reportError(tr("This platform is not supported; "
                      "unable to set the wallpaper."));
   }
+  emit wallpaperSet();
 }
 
 /**

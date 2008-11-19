@@ -35,7 +35,7 @@
  * Constructor
  */
 Application::Application(int& argc, char** argv)
-  : QApplication(argc, argv)
+  : QApplication(argc, argv), mCurrentWallpaperMonth(0)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
   QCoreApplication::setApplicationName("Logos Wallpaper Updater");
@@ -43,7 +43,8 @@ Application::Application(int& argc, char** argv)
   this->setQuitOnLastWindowClosed(false);
 
   this->mWallpaperGetter = new WallpaperGetter(this);
-  this->mMonthAtLastCheck = QDate::currentDate().month();
+  connect(this->mWallpaperGetter, SIGNAL(wallpaperSet()),
+          this, SLOT(wallpaperSet()));
 
   this->mTray = new QSystemTrayIcon(NULL);
   if (WINDOWS) {
@@ -108,9 +109,18 @@ void Application::openWebsite()
  */
 void Application::timerEvent(QTimerEvent* event)
 {
+  // refresh the wallpaper if the month has changed
   int currentMonth = QDate::currentDate().month();
-  if (currentMonth != this->mMonthAtLastCheck) {
+  if (currentMonth != this->mCurrentWallpaperMonth) {
     this->mWallpaperGetter->refreshWallpaperQuietly();
-    this->mMonthAtLastCheck = currentMonth;
   }
+}
+
+/**
+ * Called when the wallpaper is updated; remembers which month it corresponds to
+ * so we don't check for new wallpaper for the rest of the month.
+ */
+void Application::wallpaperSet()
+{
+  this->mCurrentWallpaperMonth = QDate::currentDate().month();
 }

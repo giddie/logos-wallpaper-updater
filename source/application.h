@@ -42,9 +42,10 @@ class Application : public QApplication
   public:
     Application(int& argc, char** argv);
     ~Application();
+    void showTrayMessage(QString title, QString message);
 
   public slots:
-    void showTrayMessage(QString title, QString message);
+    void wallpaperSet();
 
   private slots:
     void openWebsite();
@@ -53,7 +54,7 @@ class Application : public QApplication
     QSystemTrayIcon* mTray;
     QMenu* mTrayMenu;
     WallpaperGetter* mWallpaperGetter;
-    int mMonthAtLastCheck;
+    int mCurrentWallpaperMonth;
     void timerEvent(QTimerEvent* event);
 };
 

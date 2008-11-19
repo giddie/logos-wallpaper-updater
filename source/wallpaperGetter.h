@@ -43,6 +43,9 @@ class WallpaperGetter : public QObject
     ~WallpaperGetter();
     void refreshWallpaper(ProgressReportType progressReportType);
 
+  signals:
+    void wallpaperSet();
+
   public slots:
     void refreshWallpaperQuietly();
     void refreshWallpaperWithProgress();

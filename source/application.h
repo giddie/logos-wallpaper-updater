@@ -42,15 +42,15 @@ class Application : public QApplication
   public:
     Application(int& argc, char** argv);
     ~Application();
-    void showTrayMessage(QString title, QString message);
-
-  public slots:
-    void wallpaperSet();
+    void showTrayMessage(QString message);
 
   private slots:
     void openWebsite();
+    void unhideAppUpgradeActionGroup();
+    void wallpaperSet();
 
   private:
+    QActionGroup* mAppUpgradeActionGroup;
     QSystemTrayIcon* mTray;
     QMenu* mTrayMenu;
     WallpaperGetter* mWallpaperGetter;

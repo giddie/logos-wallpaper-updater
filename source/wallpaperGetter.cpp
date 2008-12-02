@@ -220,6 +220,5 @@ void WallpaperGetter::setWallpaper(QFile& file)
 void WallpaperGetter::reportWallpaperChange()
 {
   qobject_cast<Application*>(qApp)->
-    showTrayMessage(tr("Logos Hope Wallpaper"),
-                    tr("Your wallpaper has been updated."));
+    showTrayMessage(tr("Your wallpaper has been updated."));
 }

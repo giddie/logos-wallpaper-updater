@@ -29,6 +29,7 @@
 #include <QtCore>
 #include "application.moc"
 #include "defines.h"
+#include "applicationUpdater.h"
 
 
 /**
@@ -42,18 +43,15 @@ Application::Application(int& argc, char** argv)
 
   this->setQuitOnLastWindowClosed(false);
 
+  // Wallpaper getter
   this->mWallpaperGetter = new WallpaperGetter(this);
   connect(this->mWallpaperGetter, SIGNAL(wallpaperSet()),
           this, SLOT(wallpaperSet()));
 
-  this->mTray = new QSystemTrayIcon(NULL);
-  if (WINDOWS) {
-    mTray->setIcon(QIcon(":trayicon-16.png"));
-  } else {
-    mTray->setIcon(QIcon(":trayicon-18.png"));
-  }
-  mTray->setToolTip(QCoreApplication::applicationName());
+  // Application updates
+  ApplicationUpdater* appUpdater = new ApplicationUpdater(this);
 
+  // System tray menu
   this->mTrayMenu = new QMenu(NULL);
   QAction* action;
 
@@ -65,16 +63,40 @@ Application::Application(int& argc, char** argv)
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(openWebsite()));
 
+  this->mAppUpgradeActionGroup = new QActionGroup(this->mTrayMenu);
+  this->mAppUpgradeActionGroup->setVisible(false);
+  connect(appUpdater, SIGNAL(newVersionAvailable()),
+          this, SLOT(unhideAppUpgradeActionGroup()));
+
+  action = this->mTrayMenu->addSeparator();
+  action->setActionGroup(this->mAppUpgradeActionGroup);
+
+  action = this->mTrayMenu->addAction(tr("Upgrade this application"));
+  action->setActionGroup(this->mAppUpgradeActionGroup);
+  connect(action, SIGNAL(triggered(bool)),
+          appUpdater, SLOT(startUpdate()));
+
   action = this->mTrayMenu->addSeparator();
 
-  action = this->mTrayMenu->addAction(tr("Close"));
+  action = this->mTrayMenu->addAction(tr("Quit"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(quit()));
+
+  // System tray
+  this->mTray = new QSystemTrayIcon(NULL);
+  if (WINDOWS) {
+    mTray->setIcon(QIcon(":trayicon-16.png"));
+  } else {
+    mTray->setIcon(QIcon(":trayicon-18.png"));
+  }
+  mTray->setToolTip(QCoreApplication::applicationName());
 
   mTray->setContextMenu(mTrayMenu);
   mTray->show();
 
+  // Set the wallpaper on startup
   this->mWallpaperGetter->refreshWallpaperWithProgress();
+
   // Check the month every minute
   this->startTimer(60 * 1000);
 }
@@ -91,9 +113,9 @@ Application::~Application()
 /**
  * Displays a message in the system tray
  */
-void Application::showTrayMessage(QString title, QString message)
+void Application::showTrayMessage(QString message)
 {
-  this->mTray->showMessage(title, message);
+  this->mTray->showMessage(tr("Logos Wallpaper Updater"), message);
 }
 
 /**
@@ -114,6 +136,15 @@ void Application::timerEvent(QTimerEvent* event)
   if (currentMonth != this->mCurrentWallpaperMonth) {
     this->mWallpaperGetter->refreshWallpaperQuietly();
   }
+}
+
+/**
+ * Unhides the menu action that offers to upgrade this application to the latest
+ * version
+ */
+void Application::unhideAppUpgradeActionGroup()
+{
+  this->mAppUpgradeActionGroup->setVisible(true);
 }
 
 /**

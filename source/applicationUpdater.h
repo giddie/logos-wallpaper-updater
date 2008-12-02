@@ -26,17 +26,37 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define APP_NAME "Logos Wallpaper Updater"
-#define APP_VERSION 0.9
+#ifndef APPLICATIONUPDATER_H
+#define APPLICATIONUPDATER_H
 
-#ifdef Q_WS_MAC
-#define MACOS_X 1
-#else
-#define MACOS_X 0
-#endif
+#include <QtNetwork>
 
-#ifdef Q_WS_WIN
-#define WINDOWS 1
-#else
-#define WINDOWS 0
+
+class ApplicationUpdater : public QObject
+{
+  Q_OBJECT
+
+  public:
+    ApplicationUpdater(QObject* parent = 0);
+    ~ApplicationUpdater();
+
+  signals:
+    void newVersionAvailable();
+
+  public slots:
+    void checkForNewVersion();
+    void startUpdate();
+
+  private slots:
+    void downloadFinished(QNetworkReply* reply);
+
+  private:
+    int mNextMirrorIndex;
+    QNetworkAccessManager* mManager;
+    QHash<QString, QString> mUpdateData;
+    QStringList mUpdateFileMirrors;
+    void timerEvent(QTimerEvent* event);
+    void tryNextMirror();
+};
+
 #endif

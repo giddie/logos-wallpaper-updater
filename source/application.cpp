@@ -30,6 +30,7 @@
 #include "application.moc"
 #include "defines.h"
 #include "applicationUpdater.h"
+#include "instanceManager.h"
 
 
 /**
@@ -40,6 +41,10 @@ Application::Application(int& argc, char** argv)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
   QCoreApplication::setApplicationName("Logos Wallpaper Updater");
+
+  // This object will ensure we only have one running instance
+  InstanceManager* instanceManager =
+    new InstanceManager("logos-wallpaper-updater", this);
 
   this->setQuitOnLastWindowClosed(false);
 

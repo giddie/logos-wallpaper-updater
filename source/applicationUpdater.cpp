@@ -86,7 +86,7 @@ void ApplicationUpdater::downloadFinished(QNetworkReply* reply)
   }
 
   if (mUpdateData["Application"] == APP_NAME) {
-    if (mUpdateData["Version"].toFloat() > APP_VERSION) {
+    if (mUpdateData["Version"] > APP_VERSION) {
       emit newVersionAvailable();
       qobject_cast<Application*>(qApp)->
         showTrayMessage(tr("There is a new version of the "

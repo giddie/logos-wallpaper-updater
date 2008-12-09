@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2008, Paul Gideon Dann
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -26,17 +26,32 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define APP_NAME "Logos Wallpaper Updater"
-#define APP_VERSION "0.9"
+#ifndef INSTANCEMANAGER_H
+#define INSTANCEMANAGER_H
 
-#ifdef Q_WS_MAC
-#define MACOS_X 1
-#else
-#define MACOS_X 0
-#endif
+#include <QtNetwork>
 
-#ifdef Q_WS_WIN
-#define WINDOWS 1
-#else
-#define WINDOWS 0
+
+class InstanceManager : public QObject
+{
+  Q_OBJECT
+
+  public:
+    InstanceManager(QString key, QObject* parent);
+    ~InstanceManager();
+
+  private slots:
+    void connected();
+    void serverConnection();
+    void serverReadyRead(QObject* socketObject);
+    void startServer();
+
+  private:
+    QString mKey;
+    QSignalMapper* mReadyReadMapper;
+    QLocalServer* mServer;
+    QSharedMemory mSharedMemory;
+    QLocalSocket* mSocket;
+};
+
 #endif

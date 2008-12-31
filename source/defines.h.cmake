@@ -27,7 +27,7 @@
  */
 
 #define APP_NAME "Logos Wallpaper Updater"
-#define APP_VERSION "0.9"
+#define APP_VERSION "1.0"
 
 #ifdef Q_WS_MAC
 #define MACOS_X 1

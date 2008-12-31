@@ -39,9 +39,15 @@ class InstanceManager : public QObject
   public:
     InstanceManager(QString key, QObject* parent);
     ~InstanceManager();
+    enum ResolutionScheme { HighestVersionWins, ThisInstanceWins };
+    void ensureSingleInstance(ResolutionScheme scheme = HighestVersionWins);
+
+  signals:
+    void singleInstanceAssured();
 
   private slots:
-    void connected();
+    void connected_higestVersionWins();
+    void connected_thisInstanceWins();
     void serverConnection();
     void serverReadyRead(QObject* socketObject);
     void startServer();
@@ -52,6 +58,7 @@ class InstanceManager : public QObject
     QLocalServer* mServer;
     QSharedMemory mSharedMemory;
     QLocalSocket* mSocket;
+    void tellRemoteToQuit();
 };
 
 #endif

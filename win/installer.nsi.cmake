@@ -72,6 +72,22 @@ Var StartMenuFolder
 Section Install
   SetOutPath "$INSTDIR"
 
+  ; If there is an existing installation, ensure that it's not running
+  IfFileExists "$INSTDIR\${APP_SHORTNAME}.exe" 0 notrunning
+    Delete "$INSTDIR\${APP_SHORTNAME}.exe"
+    IfErrors 0 notrunning
+      ; Does the old version have the ability to remote-quit?
+      ReadRegStr $0 HKLM "Software\${APP_LONGNAME}" "canRemoteQuit"
+      StrCmp $0 "true" 0 quitmanually
+        ExecWait '"$INSTDIR\${APP_SHORTNAME}.exe" --quit'
+        Goto notrunning
+      quitmanually:
+        MessageBox MB_OK "Please ensure that ${APP_LONGNAME} is closed and click OK to continue."
+  notrunning:
+
+  ; The current version is able to remote-quit
+  WriteRegStr HKLM "Software\${APP_LONGNAME}" "canRemoteQuit" "true"
+
   File "Licence.txt"
 
   ; App files
@@ -106,7 +122,7 @@ Section Install
 SectionEnd
 
 Section Uninstall
-	MessageBox MB_OK "Make sure ${APP_LONGNAME} is not running and press OK to continue."
+  ExecWait '"$INSTDIR\${APP_SHORTNAME}.exe" --quit'
 
   Delete "$INSTDIR\Licence.txt"
 

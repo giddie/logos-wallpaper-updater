@@ -115,8 +115,10 @@ Application::Application(int& argc, char** argv)
   // Set the wallpaper on startup
   this->mWallpaperGetter->refreshWallpaperWithProgress();
 
-  // Check the month every minute
-  this->startTimer(60 * 1000);
+  // Check the month every minute (startTimer doesn't work well here)
+  QTimer* timer = new QTimer(this);
+  connect(timer, SIGNAL(timeout()), this, SLOT(updateInterval()));
+  timer->start(60 * 1000);
 }
 
 /**
@@ -165,24 +167,24 @@ void Application::showAbout()
 }
 
 /**
- * Timer event
- */
-void Application::timerEvent(QTimerEvent* event)
-{
-  // refresh the wallpaper if the month has changed
-  int currentMonth = QDate::currentDate().month();
-  if (currentMonth != this->mCurrentWallpaperMonth) {
-    this->mWallpaperGetter->refreshWallpaperQuietly();
-  }
-}
-
-/**
  * Unhides the menu action that offers to upgrade this application to the latest
  * version
  */
 void Application::unhideAppUpgradeActionGroup()
 {
   this->mAppUpgradeActionGroup->setVisible(true);
+}
+
+/**
+ * Update interval
+ */
+void Application::updateInterval()
+{
+  // refresh the wallpaper if the month has changed
+  int currentMonth = QDate::currentDate().month();
+  if (currentMonth != this->mCurrentWallpaperMonth) {
+    this->mWallpaperGetter->refreshWallpaperQuietly();
+  }
 }
 
 /**

@@ -46,8 +46,9 @@ class Application : public QApplication
 
   private slots:
     void openWebsite();
-    void unhideAppUpgradeActionGroup();
     void showAbout();
+    void unhideAppUpgradeActionGroup();
+    void updateInterval();
     void wallpaperSet();
 
   private:
@@ -56,7 +57,6 @@ class Application : public QApplication
     QMenu* mTrayMenu;
     WallpaperGetter* mWallpaperGetter;
     int mCurrentWallpaperMonth;
-    void timerEvent(QTimerEvent* event);
 };
 
 #endif

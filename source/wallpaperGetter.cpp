@@ -114,7 +114,6 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
       this->mProgressWidget->raise();
     }
   }
-  month++;
 }
 
 /**

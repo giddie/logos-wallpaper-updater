@@ -31,6 +31,7 @@
 #include "defines.h"
 #include "applicationUpdater.h"
 #include "instanceManager.h"
+#include "ui_about.h"
 
 
 /**
@@ -92,6 +93,9 @@ Application::Application(int& argc, char** argv)
 
   action = this->mTrayMenu->addSeparator();
 
+  action = this->mTrayMenu->addAction(tr("About"));
+  connect(action, SIGNAL(triggered(bool)),
+          this, SLOT(showAbout()));
   action = this->mTrayMenu->addAction(tr("Quit"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(quit()));
@@ -138,6 +142,26 @@ void Application::showTrayMessage(QString message)
 void Application::openWebsite()
 {
   QDesktopServices::openUrl(QUrl("http://www.logoshope.com"));
+}
+
+/**
+ * Displays the "about" box, giving information about the application
+ */
+void Application::showAbout()
+{
+  QDialog* aboutDialog = new QDialog();
+  Ui::AboutDialog dialogUi;
+
+  dialogUi.setupUi(aboutDialog);
+
+  dialogUi.appNameLabel->setText(APP_NAME);
+  dialogUi.appVersionLabel->setText(APP_VERSION);
+
+  dialogUi.textBrowser->setOpenExternalLinks(true);
+  dialogUi.textBrowser->setSource(QUrl("qrc:/about.xhtml"));
+
+  aboutDialog->show();
+  aboutDialog->raise();
 }
 
 /**

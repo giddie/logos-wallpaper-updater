@@ -47,6 +47,7 @@ class Application : public QApplication
   private slots:
     void openWebsite();
     void unhideAppUpgradeActionGroup();
+    void showAbout();
     void wallpaperSet();
 
   private:

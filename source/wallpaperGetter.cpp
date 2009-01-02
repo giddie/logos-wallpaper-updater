@@ -171,7 +171,22 @@ void WallpaperGetter::loadingFinished(QNetworkReply* reply)
       this->reportWallpaperChange();
     }
   } else {
-    this->mProgressWidget->reportError(reply->errorString());
+    QString errorString;
+    switch (reply->error()) {
+      case QNetworkReply::ContentNotFoundError:
+        errorString = tr("This month's wallpaper could not be found in the "
+                         "expected place on the website.  It could be that it "
+                         "has not yet been made available.");
+        break;
+      case QNetworkReply::HostNotFoundError:
+        errorString = tr("The website is not available.  Are you sure you're "
+                         "connected to the internet?");
+        break;
+      default:
+        errorString = reply->errorString();
+        break;
+    }
+    this->mProgressWidget->reportError(errorString);
   }
   reply->deleteLater();
 }

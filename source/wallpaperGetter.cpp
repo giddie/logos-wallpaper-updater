@@ -68,6 +68,18 @@ WallpaperGetter::~WallpaperGetter()
 }
 
 /**
+ * Clears the cache, for use when the cached wallpaper is corrupted
+ */
+void WallpaperGetter::clearCache()
+{
+  // (This list will just be empty if the directory doesn't exist)
+  QStringList entries = this->mWallpaperDir.entryList(QDir::Files);
+  foreach (QString entry, entries) {
+    this->mWallpaperDir.remove(entry);
+  }
+}
+
+/**
  * Starts downloading this month's wallpaper
  */
 void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
@@ -144,18 +156,16 @@ void WallpaperGetter::loadingFinished(QNetworkReply* reply)
     return;
   }
 
-  if (!this->mWallpaperDir.exists()) {
+  if (this->mWallpaperDir.exists()) {
+    // Clear out directory contents to avoid it just building
+    this->clearCache();
+  } else {
+    // Create our cache directory as it doesn't exist
     if (!this->mWallpaperDir.mkpath(".")) {
       this->mProgressWidget->
         reportError(tr("Unable to create directory:\n") +
                     this->mWallpaperDir.path());
       return;
-    }
-  } else {
-    // Clear out directory contents to avoid it just building
-    QStringList entries = this->mWallpaperDir.entryList(QDir::Files);
-    foreach (QString entry, entries) {
-      this->mWallpaperDir.remove(entry);
     }
   }
 

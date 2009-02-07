@@ -73,6 +73,9 @@ Application::Application(int& argc, char** argv)
   action = this->mTrayMenu->addAction(tr("Set wallpaper"));
   connect(action, SIGNAL(triggered(bool)),
           this->mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
+  action = this->mTrayMenu->addAction(tr("Clear Cache"));
+  connect(action, SIGNAL(triggered(bool)),
+          this->mWallpaperGetter, SLOT(clearCache()));
 
   action = this->mTrayMenu->addAction(tr("Open website"));
   connect(action, SIGNAL(triggered(bool)),

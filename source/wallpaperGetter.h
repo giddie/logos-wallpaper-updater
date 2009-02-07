@@ -47,6 +47,7 @@ class WallpaperGetter : public QObject
     void wallpaperSet();
 
   public slots:
+    void clearCache();
     void refreshWallpaperQuietly();
     void refreshWallpaperWithProgress();
 

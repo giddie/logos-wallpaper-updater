@@ -1,6 +1,7 @@
 <RCC>
   <qresource>
     <file>about.xhtml</file>
+    <file>help.xhtml</file>
     <file>logo.png</file>
     <file>trayicon-16.png</file>
     <file>trayicon-18.png</file>

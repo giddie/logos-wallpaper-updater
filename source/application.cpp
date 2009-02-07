@@ -32,6 +32,7 @@
 #include "applicationUpdater.h"
 #include "instanceManager.h"
 #include "ui_about.h"
+#include "ui_help.h"
 
 
 /**
@@ -73,9 +74,6 @@ Application::Application(int& argc, char** argv)
   action = this->mTrayMenu->addAction(tr("Set wallpaper"));
   connect(action, SIGNAL(triggered(bool)),
           this->mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
-  action = this->mTrayMenu->addAction(tr("Clear Cache"));
-  connect(action, SIGNAL(triggered(bool)),
-          this->mWallpaperGetter, SLOT(clearCache()));
 
   action = this->mTrayMenu->addAction(tr("Open website"));
   connect(action, SIGNAL(triggered(bool)),
@@ -96,6 +94,9 @@ Application::Application(int& argc, char** argv)
 
   action = this->mTrayMenu->addSeparator();
 
+  action = this->mTrayMenu->addAction(tr("Help"));
+  connect(action, SIGNAL(triggered(bool)),
+          this, SLOT(showHelp()));
   action = this->mTrayMenu->addAction(tr("About"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(showAbout()));
@@ -155,8 +156,9 @@ void Application::openWebsite()
 void Application::showAbout()
 {
   QDialog* aboutDialog = new QDialog();
-  Ui::AboutDialog dialogUi;
+  connect(aboutDialog, SIGNAL(finished(int)), aboutDialog, SLOT(deleteLater()));
 
+  Ui::AboutDialog dialogUi;
   dialogUi.setupUi(aboutDialog);
 
   dialogUi.appNameLabel->setText(APP_NAME);
@@ -167,6 +169,27 @@ void Application::showAbout()
 
   aboutDialog->show();
   aboutDialog->raise();
+}
+
+/**
+ * Displays the "help" window
+ */
+void Application::showHelp()
+{
+  QDialog* helpDialog = new QDialog();
+  connect(helpDialog, SIGNAL(finished(int)), helpDialog, SLOT(deleteLater()));
+
+  Ui::HelpDialog dialogUi;
+  dialogUi.setupUi(helpDialog);
+
+  dialogUi.textBrowser->setOpenExternalLinks(true);
+  dialogUi.textBrowser->setSource(QUrl("qrc:/help.xhtml"));
+
+  connect(dialogUi.clearCacheButton, SIGNAL(clicked()),
+          this->mWallpaperGetter, SLOT(clearCache()));
+
+  helpDialog->show();
+  helpDialog->raise();
 }
 
 /**

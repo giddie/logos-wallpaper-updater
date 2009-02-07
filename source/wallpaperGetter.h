@@ -53,6 +53,7 @@ class WallpaperGetter : public QObject
   private slots:
     void loadingFinished(QNetworkReply* reply);
     void setWallpaper(QFile& file);
+    void reportNetworkError(const QNetworkReply* reply);
     void reportWallpaperChange();
 
   private:

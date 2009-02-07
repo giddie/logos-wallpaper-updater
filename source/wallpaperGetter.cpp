@@ -137,58 +137,69 @@ void WallpaperGetter::refreshWallpaperWithProgress()
  */
 void WallpaperGetter::loadingFinished(QNetworkReply* reply)
 {
-  if (reply->error() == QNetworkReply::NoError) {
-    if (!this->mWallpaperDir.exists()) {
-      if (!this->mWallpaperDir.mkpath(".")) {
-        this->mProgressWidget->
-          reportError(tr("Unable to create directory:\n") +
-                      this->mWallpaperDir.path());
-        return;
-      }
-    } else {
-      // Clear out directory contents to avoid it just building
-      QStringList entries = this->mWallpaperDir.entryList(QDir::Files);
-      foreach (QString entry, entries) {
-        this->mWallpaperDir.remove(entry);
-      }
-    }
+  reply->deleteLater();
 
-    QString filename =
-      reply->url().path().split('/', QString::SkipEmptyParts).last();
-    QFile file(this->mWallpaperDir.path() + '/' + filename);
-    if (!file.open(QIODevice::WriteOnly)) {
+  if (reply->error() != QNetworkReply::NoError) {
+    this->reportNetworkError(reply);
+    return;
+  }
+
+  if (!this->mWallpaperDir.exists()) {
+    if (!this->mWallpaperDir.mkpath(".")) {
       this->mProgressWidget->
-        reportError(tr("Unable to write to file:\n") + file.fileName());
+        reportError(tr("Unable to create directory:\n") +
+                    this->mWallpaperDir.path());
       return;
     }
-    file.write(reply->readAll());
-    file.close();
-
-    this->setWallpaper(file);
-
-    // Display a message if requested
-    if (reply->property("reportWhenDone").toBool()) {
-      this->reportWallpaperChange();
-    }
   } else {
-    QString errorString;
-    switch (reply->error()) {
-      case QNetworkReply::ContentNotFoundError:
-        errorString = tr("This month's wallpaper could not be found in the "
-                         "expected place on the website.  It could be that it "
-                         "has not yet been made available.");
-        break;
-      case QNetworkReply::HostNotFoundError:
-        errorString = tr("The website is not available.  Are you sure you're "
-                         "connected to the internet?");
-        break;
-      default:
-        errorString = reply->errorString();
-        break;
+    // Clear out directory contents to avoid it just building
+    QStringList entries = this->mWallpaperDir.entryList(QDir::Files);
+    foreach (QString entry, entries) {
+      this->mWallpaperDir.remove(entry);
     }
-    this->mProgressWidget->reportError(errorString);
   }
-  reply->deleteLater();
+
+  QString filename =
+    reply->url().path().split('/', QString::SkipEmptyParts).last();
+  QFile file(this->mWallpaperDir.path() + '/' + filename);
+  if (!file.open(QIODevice::WriteOnly)) {
+    this->mProgressWidget->
+      reportError(tr("Unable to write to file:\n") + file.fileName());
+    return;
+  }
+  file.write(reply->readAll());
+  file.close();
+
+  this->setWallpaper(file);
+
+  // Display a message if requested
+  if (reply->property("reportWhenDone").toBool()) {
+    this->reportWallpaperChange();
+  }
+}
+
+/**
+ * Reports the given network error using the progress widget
+ * @param code Error code to report
+ */
+void WallpaperGetter::reportNetworkError(const QNetworkReply* reply)
+{
+  QString errorString;
+  switch (reply->error()) {
+    case QNetworkReply::ContentNotFoundError:
+      errorString = tr("This month's wallpaper could not be found in the "
+                       "expected place on the website.  It could be that it "
+                       "has not yet been made available.");
+      break;
+    case QNetworkReply::HostNotFoundError:
+      errorString = tr("The website is not available.  Are you sure you're "
+                       "connected to the internet?");
+      break;
+    default:
+      errorString = reply->errorString();
+      break;
+  }
+  this->mProgressWidget->reportError(errorString);
 }
 
 /**

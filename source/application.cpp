@@ -31,15 +31,16 @@
 #include "defines.h"
 #include "applicationUpdater.h"
 #include "instanceManager.h"
-#include "ui_about.h"
-#include "ui_help.h"
 
 
 /**
  * Constructor
  */
 Application::Application(int& argc, char** argv)
-  : QApplication(argc, argv), mCurrentWallpaperMonth(0)
+  : QApplication(argc, argv),
+    mAboutDialog(new AboutDialog()),
+    mHelpDialog(new HelpDialog()),
+    mCurrentWallpaperMonth(0)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
   QCoreApplication::setApplicationName("Logos Wallpaper Updater");
@@ -63,6 +64,10 @@ Application::Application(int& argc, char** argv)
   this->mWallpaperGetter = new WallpaperGetter(this);
   connect(this->mWallpaperGetter, SIGNAL(wallpaperSet()),
           this, SLOT(wallpaperSet()));
+
+  // Make "Clear Cache" button in Help dialog clear the cache
+  connect(mHelpDialog, SIGNAL(clearCache()),
+          mWallpaperGetter, SLOT(clearCache()));
 
   // Application updates
   ApplicationUpdater* appUpdater = new ApplicationUpdater(this);
@@ -96,10 +101,10 @@ Application::Application(int& argc, char** argv)
 
   action = this->mTrayMenu->addAction(tr("Help"));
   connect(action, SIGNAL(triggered(bool)),
-          this, SLOT(showHelp()));
+          mHelpDialog, SLOT(show()));
   action = this->mTrayMenu->addAction(tr("About"));
   connect(action, SIGNAL(triggered(bool)),
-          this, SLOT(showAbout()));
+          mAboutDialog, SLOT(show()));
   action = this->mTrayMenu->addAction(tr("Quit"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(quit()));
@@ -130,6 +135,8 @@ Application::Application(int& argc, char** argv)
  */
 Application::~Application()
 {
+  delete this->mAboutDialog;
+  delete this->mHelpDialog;
   delete this->mTrayMenu;
   delete this->mTray;
 }
@@ -148,48 +155,6 @@ void Application::showTrayMessage(QString message)
 void Application::openWebsite()
 {
   QDesktopServices::openUrl(QUrl("http://www.logoshope.com"));
-}
-
-/**
- * Displays the "about" box, giving information about the application
- */
-void Application::showAbout()
-{
-  QDialog* aboutDialog = new QDialog();
-  connect(aboutDialog, SIGNAL(finished(int)), aboutDialog, SLOT(deleteLater()));
-
-  Ui::AboutDialog dialogUi;
-  dialogUi.setupUi(aboutDialog);
-
-  dialogUi.appNameLabel->setText(APP_NAME);
-  dialogUi.appVersionLabel->setText(APP_VERSION);
-
-  dialogUi.textBrowser->setOpenExternalLinks(true);
-  dialogUi.textBrowser->setSource(QUrl("qrc:/about.xhtml"));
-
-  aboutDialog->show();
-  aboutDialog->raise();
-}
-
-/**
- * Displays the "help" window
- */
-void Application::showHelp()
-{
-  QDialog* helpDialog = new QDialog();
-  connect(helpDialog, SIGNAL(finished(int)), helpDialog, SLOT(deleteLater()));
-
-  Ui::HelpDialog dialogUi;
-  dialogUi.setupUi(helpDialog);
-
-  dialogUi.textBrowser->setOpenExternalLinks(true);
-  dialogUi.textBrowser->setSource(QUrl("qrc:/help.xhtml"));
-
-  connect(dialogUi.clearCacheButton, SIGNAL(clicked()),
-          this->mWallpaperGetter, SLOT(clearCache()));
-
-  helpDialog->show();
-  helpDialog->raise();
 }
 
 /**

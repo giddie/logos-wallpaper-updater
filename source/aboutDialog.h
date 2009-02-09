@@ -26,40 +26,26 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef ABOUTDIALOG_H
+#define ABOUTDIALOG_H
 
-#include <QApplication>
 #include <QtGui>
-
-#include "aboutDialog.h"
-#include "helpDialog.h"
-#include "wallpaperGetter.h"
+#include "ui_aboutDialog.h"
 
 
-class Application : public QApplication
+class AboutDialog : public QDialog
 {
   Q_OBJECT
 
   public:
-    Application(int& argc, char** argv);
-    ~Application();
-    void showTrayMessage(QString message);
+    AboutDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
+    ~AboutDialog();
 
-  private slots:
-    void openWebsite();
-    void unhideAppUpgradeActionGroup();
-    void updateInterval();
-    void wallpaperSet();
+  public slots:
+    void show();
 
   private:
-    AboutDialog* mAboutDialog;
-    HelpDialog* mHelpDialog;
-    QActionGroup* mAppUpgradeActionGroup;
-    QSystemTrayIcon* mTray;
-    QMenu* mTrayMenu;
-    WallpaperGetter* mWallpaperGetter;
-    int mCurrentWallpaperMonth;
+    Ui::AboutDialog ui;
 };
 
 #endif

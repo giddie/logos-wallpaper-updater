@@ -26,40 +26,36 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
-
-#include <QApplication>
-#include <QtGui>
-
-#include "aboutDialog.h"
-#include "helpDialog.h"
-#include "wallpaperGetter.h"
+#include "helpDialog.moc"
 
 
-class Application : public QApplication
+/**
+ * Constructor
+ */
+HelpDialog::HelpDialog(QWidget* parent, Qt::WindowFlags f)
+  : QDialog(parent, f)
 {
-  Q_OBJECT
+  ui.setupUi(this);
 
-  public:
-    Application(int& argc, char** argv);
-    ~Application();
-    void showTrayMessage(QString message);
+  ui.textBrowser->setOpenExternalLinks(true);
+  ui.textBrowser->setSource(QUrl("qrc:/help.xhtml"));
 
-  private slots:
-    void openWebsite();
-    void unhideAppUpgradeActionGroup();
-    void updateInterval();
-    void wallpaperSet();
+  connect(ui.clearCacheButton, SIGNAL(clicked()),
+          this, SIGNAL(clearCache()));
+}
 
-  private:
-    AboutDialog* mAboutDialog;
-    HelpDialog* mHelpDialog;
-    QActionGroup* mAppUpgradeActionGroup;
-    QSystemTrayIcon* mTray;
-    QMenu* mTrayMenu;
-    WallpaperGetter* mWallpaperGetter;
-    int mCurrentWallpaperMonth;
-};
+/**
+ * Destructor
+ */
+HelpDialog::~HelpDialog()
+{
+}
 
-#endif
+/**
+ * Overloaded show slot
+ */
+void HelpDialog::show()
+{
+  QDialog::show();
+  raise();
+}

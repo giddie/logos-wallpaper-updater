@@ -37,8 +37,8 @@
 ApplicationUpdater::ApplicationUpdater(QObject* parent)
   : QObject(parent)
 {
-  this->mManager = new QNetworkAccessManager(this);
-  connect(this->mManager, SIGNAL(finished(QNetworkReply*)),
+  mManager = new QNetworkAccessManager(this);
+  connect(mManager, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(downloadFinished(QNetworkReply*)));
 
   // List of update file mirrors
@@ -48,10 +48,10 @@ ApplicationUpdater::ApplicationUpdater(QObject* parent)
     "http://www.danns.co.uk/webfm_send/57";
 
   // Check for new version every 5 hours
-  this->startTimer(5 * 60 * 60 * 1000);
+  startTimer(5 * 60 * 60 * 1000);
 
   // Check straight away as well
-  this->checkForNewVersion();
+  checkForNewVersion();
 }
 
 /**
@@ -68,7 +68,7 @@ void ApplicationUpdater::checkForNewVersion()
 {
   // Start by trying the first mirror
   mNextMirrorIndex = 0;
-  this->tryNextMirror();
+  tryNextMirror();
 }
 
 /**
@@ -94,7 +94,7 @@ void ApplicationUpdater::downloadFinished(QNetworkReply* reply)
     }
   } else {
     // Something's wrong with this update file; try the next mirror.
-    this->tryNextMirror();
+    tryNextMirror();
   }
 
   reply->deleteLater();
@@ -116,7 +116,7 @@ void ApplicationUpdater::startUpdate()
  */
 void ApplicationUpdater::timerEvent(QTimerEvent* event)
 {
-  this->checkForNewVersion();
+  checkForNewVersion();
 }
 
 /**
@@ -127,6 +127,6 @@ void ApplicationUpdater::tryNextMirror()
 {
   if (mNextMirrorIndex < mUpdateFileMirrors.size()) {
     QString url = mUpdateFileMirrors[mNextMirrorIndex++];
-    QNetworkReply* reply = this->mManager->get(QNetworkRequest(url));
+    QNetworkReply* reply = mManager->get(QNetworkRequest(url));
   }
 }

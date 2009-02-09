@@ -40,7 +40,7 @@ InstanceManager::InstanceManager(QString key, QObject* parent)
   if (!mSharedMemory.attach()) {
     if (mSharedMemory.create(1)) {
       // There is no prior instance of this application running
-      this->startServer();
+      startServer();
     } else {
       qWarning() <<
         QString("Unable to create shared memory with key \"%1\".").arg(mKey);
@@ -98,8 +98,8 @@ void InstanceManager::connected_higestVersionWins()
 
   // Only the instance with the higher version number can remain
   if (remoteVersion < APP_VERSION) {
-    this->tellRemoteToQuit();
-    this->startServer();
+    tellRemoteToQuit();
+    startServer();
   } else {
     QTimer::singleShot(0, qApp, SLOT(quit()));
   }
@@ -115,8 +115,8 @@ void InstanceManager::connected_thisInstanceWins()
   connect(mSocket, SIGNAL(disconnected()), mSocket, SLOT(deleteLater()));
 
   // Tell the remote to quit
-  this->tellRemoteToQuit();
-  this->startServer();
+  tellRemoteToQuit();
+  startServer();
 
   mSocket->disconnectFromServer();
 }

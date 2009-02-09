@@ -35,7 +35,7 @@
 ProgressWidget::ProgressWidget(QWidget* parent)
   : QWidget(parent)
 {
-  this->ui.setupUi(this);
+  ui.setupUi(this);
 }
 
 /**
@@ -50,8 +50,8 @@ ProgressWidget::~ProgressWidget()
  */
 void ProgressWidget::setProgress(qint64 value, qint64 total)
 {
-  this->ui.progressBar->setMaximum(total);
-  this->ui.progressBar->setValue(value);
+  ui.progressBar->setMaximum(total);
+  ui.progressBar->setValue(value);
 }
 
 /**
@@ -60,7 +60,7 @@ void ProgressWidget::setProgress(qint64 value, qint64 total)
 void ProgressWidget::reportError(QString errorString)
 {
   // This widget may not be showing, in which case we won't show the error
-  if (this->isVisible()) {
+  if (isVisible()) {
     QMessageBox::critical(this, tr("Error"),
                           tr("An error occured when trying to set the "
                              "latest wallpaper:\n\n") + errorString);

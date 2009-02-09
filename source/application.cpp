@@ -62,61 +62,61 @@ Application::Application(int& argc, char** argv)
     instanceManager->ensureSingleInstance(InstanceManager::HighestVersionWins);
   }
 
-  this->setQuitOnLastWindowClosed(false);
+  setQuitOnLastWindowClosed(false);
 
   // Application updates
   ApplicationUpdater* appUpdater = new ApplicationUpdater(this);
 
   // Wallpaper getter
-  this->mWallpaperGetter = new WallpaperGetter(this);
-  connect(this->mWallpaperGetter, SIGNAL(wallpaperSet()),
+  mWallpaperGetter = new WallpaperGetter(this);
+  connect(mWallpaperGetter, SIGNAL(wallpaperSet()),
           this, SLOT(wallpaperSet()));
 
   // Dialogs
-  this->mAboutDialog = new AboutDialog();
-  this->mHelpDialog = new HelpDialog();
+  mAboutDialog = new AboutDialog();
+  mHelpDialog = new HelpDialog();
   connect(mHelpDialog, SIGNAL(clearCache()),
           mWallpaperGetter, SLOT(clearCache()));
 
   // System tray menu
-  this->mTrayMenu = new QMenu();
+  mTrayMenu = new QMenu();
   QAction* action;
 
-  action = this->mTrayMenu->addAction(tr("Set wallpaper"));
+  action = mTrayMenu->addAction(tr("Set wallpaper"));
   connect(action, SIGNAL(triggered(bool)),
-          this->mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
+          mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
 
-  action = this->mTrayMenu->addAction(tr("Open website"));
+  action = mTrayMenu->addAction(tr("Open website"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(openWebsite()));
 
-  this->mAppUpgradeActionGroup = new QActionGroup(this->mTrayMenu);
-  this->mAppUpgradeActionGroup->setVisible(false);
+  mAppUpgradeActionGroup = new QActionGroup(mTrayMenu);
+  mAppUpgradeActionGroup->setVisible(false);
   connect(appUpdater, SIGNAL(newVersionAvailable()),
           this, SLOT(unhideAppUpgradeActionGroup()));
 
-  action = this->mTrayMenu->addSeparator();
-  action->setActionGroup(this->mAppUpgradeActionGroup);
+  action = mTrayMenu->addSeparator();
+  action->setActionGroup(mAppUpgradeActionGroup);
 
-  action = this->mTrayMenu->addAction(tr("Upgrade this application"));
-  action->setActionGroup(this->mAppUpgradeActionGroup);
+  action = mTrayMenu->addAction(tr("Upgrade this application"));
+  action->setActionGroup(mAppUpgradeActionGroup);
   connect(action, SIGNAL(triggered(bool)),
           appUpdater, SLOT(startUpdate()));
 
-  action = this->mTrayMenu->addSeparator();
+  action = mTrayMenu->addSeparator();
 
-  action = this->mTrayMenu->addAction(tr("Help"));
+  action = mTrayMenu->addAction(tr("Help"));
   connect(action, SIGNAL(triggered(bool)),
           mHelpDialog, SLOT(show()));
-  action = this->mTrayMenu->addAction(tr("About"));
+  action = mTrayMenu->addAction(tr("About"));
   connect(action, SIGNAL(triggered(bool)),
           mAboutDialog, SLOT(show()));
-  action = this->mTrayMenu->addAction(tr("Quit"));
+  action = mTrayMenu->addAction(tr("Quit"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(quit()));
 
   // System tray
-  this->mTray = new QSystemTrayIcon();
+  mTray = new QSystemTrayIcon();
   if (WINDOWS) {
     mTray->setIcon(QIcon(":trayicon-16.png"));
   } else {
@@ -128,7 +128,7 @@ Application::Application(int& argc, char** argv)
   mTray->show();
 
   // Set the wallpaper on startup
-  this->mWallpaperGetter->refreshWallpaperWithProgress();
+  mWallpaperGetter->refreshWallpaperWithProgress();
 
   // Check the month every minute (startTimer doesn't work well here)
   QTimer* timer = new QTimer(this);
@@ -141,10 +141,10 @@ Application::Application(int& argc, char** argv)
  */
 Application::~Application()
 {
-  delete this->mAboutDialog;
-  delete this->mHelpDialog;
-  delete this->mTrayMenu;
-  delete this->mTray;
+  delete mAboutDialog;
+  delete mHelpDialog;
+  delete mTrayMenu;
+  delete mTray;
 }
 
 /**
@@ -152,7 +152,7 @@ Application::~Application()
  */
 void Application::showTrayMessage(QString message)
 {
-  this->mTray->showMessage(tr("Logos Wallpaper Updater"), message);
+  mTray->showMessage(tr("Logos Wallpaper Updater"), message);
 }
 
 /**
@@ -169,7 +169,7 @@ void Application::openWebsite()
  */
 void Application::unhideAppUpgradeActionGroup()
 {
-  this->mAppUpgradeActionGroup->setVisible(true);
+  mAppUpgradeActionGroup->setVisible(true);
 }
 
 /**
@@ -179,8 +179,8 @@ void Application::updateInterval()
 {
   // refresh the wallpaper if the month has changed
   int currentMonth = QDate::currentDate().month();
-  if (currentMonth != this->mCurrentWallpaperMonth) {
-    this->mWallpaperGetter->refreshWallpaperQuietly();
+  if (currentMonth != mCurrentWallpaperMonth) {
+    mWallpaperGetter->refreshWallpaperQuietly();
   }
 }
 
@@ -190,5 +190,5 @@ void Application::updateInterval()
  */
 void Application::wallpaperSet()
 {
-  this->mCurrentWallpaperMonth = QDate::currentDate().month();
+  mCurrentWallpaperMonth = QDate::currentDate().month();
 }

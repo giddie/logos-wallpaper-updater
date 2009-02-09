@@ -42,11 +42,10 @@
 WallpaperGetter::WallpaperGetter(QObject* parent)
   : QObject(parent),
     mManager(),
-    mProgressWidget()
+    mProgressWidget(),
+    mWallpaperDir(QDesktopServices::storageLocation(
+                    QDesktopServices::DataLocation))
 {
-  mWallpaperDir =
-    QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-
   QRect screen = QApplication::desktop()->screenGeometry();
   QPoint topLeft = screen.center() -
                      QPoint(mProgressWidget.width() / 2,

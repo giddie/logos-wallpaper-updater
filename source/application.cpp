@@ -43,7 +43,7 @@ Application::Application(int& argc, char** argv)
     mTray(),
     mTrayMenu(),
     mAppUpgradeActionGroup(NULL),
-    mWallpaperGetter(),
+    mWallpaperGetter(NULL),
     mCurrentWallpaperMonth(0)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
@@ -68,19 +68,20 @@ Application::Application(int& argc, char** argv)
   ApplicationUpdater* appUpdater = new ApplicationUpdater(this);
 
   // Wallpaper getter
-  connect(&mWallpaperGetter, SIGNAL(wallpaperSet()),
+  mWallpaperGetter = new WallpaperGetter(this);
+  connect(mWallpaperGetter, SIGNAL(wallpaperSet()),
           this, SLOT(wallpaperSet()));
 
   // Dialogs
   connect(&mHelpDialog, SIGNAL(clearCache()),
-          &mWallpaperGetter, SLOT(clearCache()));
+          mWallpaperGetter, SLOT(clearCache()));
 
   // System tray menu
   QAction* action;
 
   action = mTrayMenu.addAction(tr("Set wallpaper"));
   connect(action, SIGNAL(triggered(bool)),
-          &mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
+          mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
 
   action = mTrayMenu.addAction(tr("Open website"));
   connect(action, SIGNAL(triggered(bool)),
@@ -123,7 +124,7 @@ Application::Application(int& argc, char** argv)
   mTray.show();
 
   // Set the wallpaper on startup
-  mWallpaperGetter.refreshWallpaperWithProgress();
+  mWallpaperGetter->refreshWallpaperWithProgress();
 
   // Check the month every minute (startTimer doesn't work well here)
   QTimer* timer = new QTimer(this);
@@ -171,7 +172,7 @@ void Application::updateInterval()
   // refresh the wallpaper if the month has changed
   int currentMonth = QDate::currentDate().month();
   if (currentMonth != mCurrentWallpaperMonth) {
-    mWallpaperGetter.refreshWallpaperQuietly();
+    mWallpaperGetter->refreshWallpaperQuietly();
   }
 }
 

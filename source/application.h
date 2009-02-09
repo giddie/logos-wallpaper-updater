@@ -58,7 +58,7 @@ class Application : public QApplication
     QSystemTrayIcon mTray;
     QMenu mTrayMenu;
     QActionGroup* mAppUpgradeActionGroup;
-    WallpaperGetter mWallpaperGetter;
+    WallpaperGetter* mWallpaperGetter;
     int mCurrentWallpaperMonth;
 };
 

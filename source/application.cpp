@@ -38,8 +38,12 @@
  */
 Application::Application(int& argc, char** argv)
   : QApplication(argc, argv),
-    mAboutDialog(new AboutDialog()),
-    mHelpDialog(new HelpDialog()),
+    mAboutDialog(NULL),
+    mHelpDialog(NULL),
+    mTray(NULL),
+    mTrayMenu(NULL),
+    mAppUpgradeActionGroup(NULL),
+    mWallpaperGetter(NULL),
     mCurrentWallpaperMonth(0)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
@@ -60,20 +64,22 @@ Application::Application(int& argc, char** argv)
 
   this->setQuitOnLastWindowClosed(false);
 
+  // Application updates
+  ApplicationUpdater* appUpdater = new ApplicationUpdater(this);
+
   // Wallpaper getter
   this->mWallpaperGetter = new WallpaperGetter(this);
   connect(this->mWallpaperGetter, SIGNAL(wallpaperSet()),
           this, SLOT(wallpaperSet()));
 
-  // Make "Clear Cache" button in Help dialog clear the cache
+  // Dialogs
+  this->mAboutDialog = new AboutDialog();
+  this->mHelpDialog = new HelpDialog();
   connect(mHelpDialog, SIGNAL(clearCache()),
           mWallpaperGetter, SLOT(clearCache()));
 
-  // Application updates
-  ApplicationUpdater* appUpdater = new ApplicationUpdater(this);
-
   // System tray menu
-  this->mTrayMenu = new QMenu(NULL);
+  this->mTrayMenu = new QMenu();
   QAction* action;
 
   action = this->mTrayMenu->addAction(tr("Set wallpaper"));
@@ -110,7 +116,7 @@ Application::Application(int& argc, char** argv)
           this, SLOT(quit()));
 
   // System tray
-  this->mTray = new QSystemTrayIcon(NULL);
+  this->mTray = new QSystemTrayIcon();
   if (WINDOWS) {
     mTray->setIcon(QIcon(":trayicon-16.png"));
   } else {

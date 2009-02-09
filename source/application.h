@@ -55,9 +55,9 @@ class Application : public QApplication
   private:
     AboutDialog* mAboutDialog;
     HelpDialog* mHelpDialog;
-    QActionGroup* mAppUpgradeActionGroup;
     QSystemTrayIcon* mTray;
     QMenu* mTrayMenu;
+    QActionGroup* mAppUpgradeActionGroup;
     WallpaperGetter* mWallpaperGetter;
     int mCurrentWallpaperMonth;
 };

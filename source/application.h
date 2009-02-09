@@ -47,7 +47,7 @@ class Application : public QApplication
     void showTrayMessage(QString message);
 
   private slots:
-    void openWebsite();
+    void openWebsite() const;
     void unhideAppUpgradeActionGroup();
     void updateInterval();
     void wallpaperSet();

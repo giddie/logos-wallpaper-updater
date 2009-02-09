@@ -38,9 +38,9 @@ class WallpaperGetter : public QObject
   Q_OBJECT
 
   public:
-    enum ProgressReportType { REPORT_WHEN_DONE, SHOW_PROGRESS_WIDGET };
     WallpaperGetter(QObject* parent = 0);
     ~WallpaperGetter();
+    enum ProgressReportType { REPORT_WHEN_DONE, SHOW_PROGRESS_WIDGET };
     void refreshWallpaper(ProgressReportType progressReportType);
 
   signals:

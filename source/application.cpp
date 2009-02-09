@@ -149,7 +149,7 @@ void Application::showTrayMessage(QString message)
 /**
  * Opens the website
  */
-void Application::openWebsite()
+void Application::openWebsite() const
 {
   QDesktopServices::openUrl(QUrl("http://www.logoshope.com"));
 }

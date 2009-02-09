@@ -52,7 +52,7 @@ class ApplicationUpdater : public QObject
 
   private:
     int mNextMirrorIndex;
-    QNetworkAccessManager* mManager;
+    QNetworkAccessManager mManager;
     QHash<QString, QString> mUpdateData;
     QStringList mUpdateFileMirrors;
     void timerEvent(QTimerEvent* event);

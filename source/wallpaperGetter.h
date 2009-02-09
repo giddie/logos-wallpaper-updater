@@ -58,8 +58,8 @@ class WallpaperGetter : public QObject
     void reportWallpaperChange();
 
   private:
-    QNetworkAccessManager* mManager;
-    ProgressWidget* mProgressWidget;
+    QNetworkAccessManager mManager;
+    ProgressWidget mProgressWidget;
     QDir mWallpaperDir;
 };
 

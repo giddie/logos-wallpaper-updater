@@ -34,7 +34,8 @@
  * Constructor
  */
 AboutDialog::AboutDialog(QWidget* parent, Qt::WindowFlags f)
-  : QDialog(parent, f)
+  : QDialog(parent, f),
+    ui()
 {
   ui.setupUi(this);
 

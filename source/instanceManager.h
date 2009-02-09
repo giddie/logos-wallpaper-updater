@@ -58,7 +58,7 @@ class InstanceManager : public QObject
     QLocalServer* mServer;
     QSharedMemory mSharedMemory;
     QLocalSocket* mSocket;
-    void tellRemoteToQuit();
+    void tellServerToQuit();
 };
 
 #endif

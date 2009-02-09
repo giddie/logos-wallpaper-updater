@@ -33,7 +33,8 @@
  * Constructor
  */
 HelpDialog::HelpDialog(QWidget* parent, Qt::WindowFlags f)
-  : QDialog(parent, f)
+  : QDialog(parent, f),
+    ui()
 {
   ui.setupUi(this);
 

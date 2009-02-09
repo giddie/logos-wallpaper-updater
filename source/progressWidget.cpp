@@ -33,7 +33,8 @@
  * Constructor
  */
 ProgressWidget::ProgressWidget(QWidget* parent)
-  : QWidget(parent)
+  : QWidget(parent),
+    ui()
 {
   ui.setupUi(this);
 }

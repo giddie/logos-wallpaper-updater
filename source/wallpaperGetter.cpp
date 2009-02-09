@@ -40,23 +40,23 @@
  * Constructor
  */
 WallpaperGetter::WallpaperGetter(QObject* parent)
-  : QObject(parent)
+  : QObject(parent),
+    mManager(),
+    mProgressWidget()
 {
-  mManager = new QNetworkAccessManager(this);
   mWallpaperDir =
     QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
-  mProgressWidget = new ProgressWidget(NULL);
   QRect screen = QApplication::desktop()->screenGeometry();
   QPoint topLeft = screen.center() -
-                     QPoint(mProgressWidget->width() / 2,
-                            mProgressWidget->height() / 2);
-  mProgressWidget->move(topLeft);
+                     QPoint(mProgressWidget.width() / 2,
+                            mProgressWidget.height() / 2);
+  mProgressWidget.move(topLeft);
 
-  connect(mManager, SIGNAL(finished(QNetworkReply*)),
+  connect(&mManager, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(loadingFinished(QNetworkReply*)));
-  connect(mManager, SIGNAL(finished(QNetworkReply*)),
-          mProgressWidget, SLOT(hide()));
+  connect(&mManager, SIGNAL(finished(QNetworkReply*)),
+          &mProgressWidget, SLOT(hide()));
 }
 
 /**
@@ -64,7 +64,6 @@ WallpaperGetter::WallpaperGetter(QObject* parent)
  */
 WallpaperGetter::~WallpaperGetter()
 {
-  delete mProgressWidget;
 }
 
 /**
@@ -110,9 +109,9 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
       reportWallpaperChange();
     }
   } else {
-    QNetworkReply* reply = mManager->get(QNetworkRequest(url));
+    QNetworkReply* reply = mManager.get(QNetworkRequest(url));
     connect(reply, SIGNAL(downloadProgress(qint64, qint64)),
-            mProgressWidget, SLOT(setProgress(qint64, qint64)));
+            &mProgressWidget, SLOT(setProgress(qint64, qint64)));
 
     // If we're going to display a message when done, we tag the reply
     if (progressReportType == REPORT_WHEN_DONE) {
@@ -121,9 +120,9 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
 
     // Show progress window
     if (progressReportType == SHOW_PROGRESS_WIDGET) {
-      mProgressWidget->setProgress(0, 1);
-      mProgressWidget->show();
-      mProgressWidget->raise();
+      mProgressWidget.setProgress(0, 1);
+      mProgressWidget.show();
+      mProgressWidget.raise();
     }
   }
 }
@@ -162,7 +161,7 @@ void WallpaperGetter::loadingFinished(QNetworkReply* reply)
   } else {
     // Create our cache directory as it doesn't exist
     if (!mWallpaperDir.mkpath(".")) {
-      mProgressWidget->
+      mProgressWidget.
         reportError(tr("Unable to create directory:\n") +
                     mWallpaperDir.path());
       return;
@@ -173,7 +172,7 @@ void WallpaperGetter::loadingFinished(QNetworkReply* reply)
     reply->url().path().split('/', QString::SkipEmptyParts).last();
   QFile file(mWallpaperDir.path() + '/' + filename);
   if (!file.open(QIODevice::WriteOnly)) {
-    mProgressWidget->
+    mProgressWidget.
       reportError(tr("Unable to write to file:\n") + file.fileName());
     return;
   }
@@ -209,7 +208,7 @@ void WallpaperGetter::reportNetworkError(const QNetworkReply* reply)
       errorString = reply->errorString();
       break;
   }
-  mProgressWidget->reportError(errorString);
+  mProgressWidget.reportError(errorString);
 }
 
 /**
@@ -242,7 +241,7 @@ void WallpaperGetter::setWallpaper(QFile& file)
                           SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 #endif
   } else {
-    mProgressWidget->
+    mProgressWidget.
       reportError(tr("This platform is not supported; "
                      "unable to set the wallpaper."));
   }

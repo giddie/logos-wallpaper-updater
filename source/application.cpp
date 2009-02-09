@@ -38,12 +38,12 @@
  */
 Application::Application(int& argc, char** argv)
   : QApplication(argc, argv),
-    mAboutDialog(NULL),
-    mHelpDialog(NULL),
-    mTray(NULL),
-    mTrayMenu(NULL),
+    mAboutDialog(),
+    mHelpDialog(),
+    mTray(),
+    mTrayMenu(),
     mAppUpgradeActionGroup(NULL),
-    mWallpaperGetter(NULL),
+    mWallpaperGetter(),
     mCurrentWallpaperMonth(0)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
@@ -68,67 +68,62 @@ Application::Application(int& argc, char** argv)
   ApplicationUpdater* appUpdater = new ApplicationUpdater(this);
 
   // Wallpaper getter
-  mWallpaperGetter = new WallpaperGetter(this);
-  connect(mWallpaperGetter, SIGNAL(wallpaperSet()),
+  connect(&mWallpaperGetter, SIGNAL(wallpaperSet()),
           this, SLOT(wallpaperSet()));
 
   // Dialogs
-  mAboutDialog = new AboutDialog();
-  mHelpDialog = new HelpDialog();
-  connect(mHelpDialog, SIGNAL(clearCache()),
-          mWallpaperGetter, SLOT(clearCache()));
+  connect(&mHelpDialog, SIGNAL(clearCache()),
+          &mWallpaperGetter, SLOT(clearCache()));
 
   // System tray menu
-  mTrayMenu = new QMenu();
   QAction* action;
 
-  action = mTrayMenu->addAction(tr("Set wallpaper"));
+  action = mTrayMenu.addAction(tr("Set wallpaper"));
   connect(action, SIGNAL(triggered(bool)),
-          mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
+          &mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
 
-  action = mTrayMenu->addAction(tr("Open website"));
+  action = mTrayMenu.addAction(tr("Open website"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(openWebsite()));
 
-  mAppUpgradeActionGroup = new QActionGroup(mTrayMenu);
+  mAppUpgradeActionGroup = new QActionGroup(&mTrayMenu);
   mAppUpgradeActionGroup->setVisible(false);
   connect(appUpdater, SIGNAL(newVersionAvailable()),
           this, SLOT(unhideAppUpgradeActionGroup()));
 
-  action = mTrayMenu->addSeparator();
+  action = mTrayMenu.addSeparator();
   action->setActionGroup(mAppUpgradeActionGroup);
 
-  action = mTrayMenu->addAction(tr("Upgrade this application"));
+  action = mTrayMenu.addAction(tr("Upgrade this application"));
   action->setActionGroup(mAppUpgradeActionGroup);
   connect(action, SIGNAL(triggered(bool)),
           appUpdater, SLOT(startUpdate()));
 
-  action = mTrayMenu->addSeparator();
+  action = mTrayMenu.addSeparator();
 
-  action = mTrayMenu->addAction(tr("Help"));
+  action = mTrayMenu.addAction(tr("Help"));
   connect(action, SIGNAL(triggered(bool)),
-          mHelpDialog, SLOT(show()));
-  action = mTrayMenu->addAction(tr("About"));
+          &mHelpDialog, SLOT(show()));
+  action = mTrayMenu.addAction(tr("About"));
   connect(action, SIGNAL(triggered(bool)),
-          mAboutDialog, SLOT(show()));
-  action = mTrayMenu->addAction(tr("Quit"));
+          &mAboutDialog, SLOT(show()));
+  action = mTrayMenu.addAction(tr("Quit"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(quit()));
 
   // System tray
-  mTray = new QSystemTrayIcon();
   if (WINDOWS) {
-    mTray->setIcon(QIcon(":trayicon-16.png"));
+    mTray.setIcon(QIcon(":trayicon-16.png"));
   } else {
-    mTray->setIcon(QIcon(":trayicon-18.png"));
+    mTray.setIcon(QIcon(":trayicon-18.png"));
   }
-  mTray->setToolTip(QCoreApplication::applicationName());
+  mTray.setToolTip(QCoreApplication::applicationName());
 
-  mTray->setContextMenu(mTrayMenu);
-  mTray->show();
+  mTray.setContextMenu(&mTrayMenu);
+  mTray.show();
 
   // Set the wallpaper on startup
-  mWallpaperGetter->refreshWallpaperWithProgress();
+  mWallpaperGetter.refreshWallpaperWithProgress();
 
   // Check the month every minute (startTimer doesn't work well here)
   QTimer* timer = new QTimer(this);
@@ -141,10 +136,6 @@ Application::Application(int& argc, char** argv)
  */
 Application::~Application()
 {
-  delete mAboutDialog;
-  delete mHelpDialog;
-  delete mTrayMenu;
-  delete mTray;
 }
 
 /**
@@ -152,7 +143,7 @@ Application::~Application()
  */
 void Application::showTrayMessage(QString message)
 {
-  mTray->showMessage(tr("Logos Wallpaper Updater"), message);
+  mTray.showMessage(tr("Logos Wallpaper Updater"), message);
 }
 
 /**
@@ -180,7 +171,7 @@ void Application::updateInterval()
   // refresh the wallpaper if the month has changed
   int currentMonth = QDate::currentDate().month();
   if (currentMonth != mCurrentWallpaperMonth) {
-    mWallpaperGetter->refreshWallpaperQuietly();
+    mWallpaperGetter.refreshWallpaperQuietly();
   }
 }
 

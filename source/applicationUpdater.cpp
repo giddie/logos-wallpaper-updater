@@ -35,10 +35,13 @@
  * Constructor
  */
 ApplicationUpdater::ApplicationUpdater(QObject* parent)
-  : QObject(parent)
+  : QObject(parent),
+    mNextMirrorIndex(0),
+    mManager(),
+    mUpdateData(),
+    mUpdateFileMirrors()
 {
-  mManager = new QNetworkAccessManager(this);
-  connect(mManager, SIGNAL(finished(QNetworkReply*)),
+  connect(&mManager, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(downloadFinished(QNetworkReply*)));
 
   // List of update file mirrors
@@ -127,6 +130,6 @@ void ApplicationUpdater::tryNextMirror()
 {
   if (mNextMirrorIndex < mUpdateFileMirrors.size()) {
     QString url = mUpdateFileMirrors[mNextMirrorIndex++];
-    QNetworkReply* reply = mManager->get(QNetworkRequest(url));
+    QNetworkReply* reply = mManager.get(QNetworkRequest(url));
   }
 }

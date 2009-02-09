@@ -53,12 +53,12 @@ class Application : public QApplication
     void wallpaperSet();
 
   private:
-    AboutDialog* mAboutDialog;
-    HelpDialog* mHelpDialog;
-    QSystemTrayIcon* mTray;
-    QMenu* mTrayMenu;
+    AboutDialog mAboutDialog;
+    HelpDialog mHelpDialog;
+    QSystemTrayIcon mTray;
+    QMenu mTrayMenu;
     QActionGroup* mAppUpgradeActionGroup;
-    WallpaperGetter* mWallpaperGetter;
+    WallpaperGetter mWallpaperGetter;
     int mCurrentWallpaperMonth;
 };
 

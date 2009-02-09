@@ -34,7 +34,11 @@
  * Constructor
  */
 InstanceManager::InstanceManager(QString key, QObject* parent)
-  : QObject(parent), mKey(key), mReadyReadMapper(0), mServer(0), mSocket(0)
+  : QObject(parent),
+    mKey(key),
+    mReadyReadMapper(NULL),
+    mServer(NULL),
+    mSocket(NULL)
 {
   mSharedMemory.setKey(mKey);
   if (!mSharedMemory.attach()) {
@@ -66,6 +70,10 @@ void InstanceManager::ensureSingleInstance(ResolutionScheme scheme)
     emit singleInstanceAssured();
   } else {
     mSocket = new QLocalSocket(this);
+    // Make sure the socket is deleted after it's used
+    connect(mSocket, SIGNAL(error(QLocalSocket::LocalSocketError)),
+            mSocket, SLOT(deleteLater()));
+    connect(mSocket, SIGNAL(disconnected()), mSocket, SLOT(deleteLater()));
 
     char* connectSlot;
     switch (scheme) {
@@ -87,8 +95,6 @@ void InstanceManager::ensureSingleInstance(ResolutionScheme scheme)
  */
 void InstanceManager::connected_higestVersionWins()
 {
-  connect(mSocket, SIGNAL(disconnected()), mSocket, SLOT(deleteLater()));
-
   // Ask the remote for its version number
   QTextStream stream(mSocket);
   stream << "version\n";
@@ -98,7 +104,7 @@ void InstanceManager::connected_higestVersionWins()
 
   // Only the instance with the higher version number can remain
   if (remoteVersion < APP_VERSION) {
-    tellRemoteToQuit();
+    tellServerToQuit();
     startServer();
   } else {
     QTimer::singleShot(0, qApp, SLOT(quit()));
@@ -112,10 +118,8 @@ void InstanceManager::connected_higestVersionWins()
  */
 void InstanceManager::connected_thisInstanceWins()
 {
-  connect(mSocket, SIGNAL(disconnected()), mSocket, SLOT(deleteLater()));
-
   // Tell the remote to quit
-  tellRemoteToQuit();
+  tellServerToQuit();
   startServer();
 
   mSocket->disconnectFromServer();
@@ -172,14 +176,14 @@ void InstanceManager::startServer()
     qWarning() << "Unable to start local socket server:" <<
                   mServer->errorString();
     delete mServer;
-    mServer = 0;
+    mServer = NULL;
   }
 }
 
 /**
  * Uses the connected mSocket to instruct the remote instance to quit
  */
-void InstanceManager::tellRemoteToQuit()
+void InstanceManager::tellServerToQuit()
 {
   QTextStream stream(mSocket);
   stream << "quit\n";

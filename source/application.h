@@ -31,18 +31,20 @@
 
 #include <QApplication>
 #include <QtGui>
+#include <tr1/memory>
 
-#include "aboutDialog.h"
-#include "helpDialog.h"
-#include "wallpaperGetter.h"
+using namespace std::tr1;
 
+class AboutDialog;
+class HelpDialog;
+class WallpaperGetter;
 
 class Application : public QApplication
 {
   Q_OBJECT
 
   public:
-    Application(int& argc, char** argv);
+    Application(int argc, char* argv[]);
     ~Application();
     void showTrayMessage(QString message);
 
@@ -53,10 +55,10 @@ class Application : public QApplication
     void wallpaperSet();
 
   private:
-    AboutDialog mAboutDialog;
-    HelpDialog mHelpDialog;
-    QSystemTrayIcon mTray;
-    QMenu mTrayMenu;
+    shared_ptr<AboutDialog> mAboutDialog;
+    shared_ptr<HelpDialog> mHelpDialog;
+    shared_ptr<QSystemTrayIcon> mTray;
+    shared_ptr<QMenu> mTrayMenu;
     QActionGroup* mAppUpgradeActionGroup;
     WallpaperGetter* mWallpaperGetter;
     int mCurrentWallpaperMonth;

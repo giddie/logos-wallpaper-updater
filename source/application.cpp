@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2008, Paul Gideon Dann
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -29,18 +29,21 @@
 #include <QtCore>
 #include "application.moc"
 #include "defines.h"
+#include "aboutDialog.h"
+#include "helpDialog.h"
+#include "wallpaperGetter.h"
 #include "applicationUpdater.h"
 
 
 /**
  * Constructor
  */
-Application::Application(int& argc, char** argv)
+Application::Application(int argc, char* argv[])
   : QApplication(argc, argv),
-    mAboutDialog(),
-    mHelpDialog(),
-    mTray(),
-    mTrayMenu(),
+    mAboutDialog(new AboutDialog()),
+    mHelpDialog(new HelpDialog()),
+    mTray(new QSystemTrayIcon()),
+    mTrayMenu(new QMenu()),
     mAppUpgradeActionGroup(NULL),
     mWallpaperGetter(NULL),
     mCurrentWallpaperMonth(0)
@@ -59,55 +62,55 @@ Application::Application(int& argc, char** argv)
           this, SLOT(wallpaperSet()));
 
   // Dialogs
-  connect(&mHelpDialog, SIGNAL(clearCache()),
+  connect(mHelpDialog.get(), SIGNAL(clearCache()),
           mWallpaperGetter, SLOT(clearCache()));
 
   // System tray menu
   QAction* action;
 
-  action = mTrayMenu.addAction(tr("Set wallpaper"));
+  action = mTrayMenu->addAction(tr("Set wallpaper"));
   connect(action, SIGNAL(triggered(bool)),
           mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
 
-  action = mTrayMenu.addAction(tr("Open website"));
+  action = mTrayMenu->addAction(tr("Open website"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(openWebsite()));
 
-  mAppUpgradeActionGroup = new QActionGroup(&mTrayMenu);
+  mAppUpgradeActionGroup = new QActionGroup(mTrayMenu.get());
   mAppUpgradeActionGroup->setVisible(false);
   connect(appUpdater, SIGNAL(newVersionAvailable()),
           this, SLOT(unhideAppUpgradeActionGroup()));
 
-  action = mTrayMenu.addSeparator();
+  action = mTrayMenu->addSeparator();
   action->setActionGroup(mAppUpgradeActionGroup);
 
-  action = mTrayMenu.addAction(tr("Upgrade this application"));
+  action = mTrayMenu->addAction(tr("Upgrade this application"));
   action->setActionGroup(mAppUpgradeActionGroup);
   connect(action, SIGNAL(triggered(bool)),
           appUpdater, SLOT(startUpdate()));
 
-  action = mTrayMenu.addSeparator();
+  action = mTrayMenu->addSeparator();
 
-  action = mTrayMenu.addAction(tr("Help"));
+  action = mTrayMenu->addAction(tr("Help"));
   connect(action, SIGNAL(triggered(bool)),
-          &mHelpDialog, SLOT(show()));
-  action = mTrayMenu.addAction(tr("About"));
+          mHelpDialog.get(), SLOT(show()));
+  action = mTrayMenu->addAction(tr("About"));
   connect(action, SIGNAL(triggered(bool)),
-          &mAboutDialog, SLOT(show()));
-  action = mTrayMenu.addAction(tr("Quit"));
+          mAboutDialog.get(), SLOT(show()));
+  action = mTrayMenu->addAction(tr("Quit"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(quit()));
 
   // System tray
   if (WINDOWS) {
-    mTray.setIcon(QIcon(":trayicon-16.png"));
+    mTray->setIcon(QIcon(":trayicon-16.png"));
   } else {
-    mTray.setIcon(QIcon(":trayicon-18.png"));
+    mTray->setIcon(QIcon(":trayicon-18.png"));
   }
-  mTray.setToolTip(QCoreApplication::applicationName());
+  mTray->setToolTip(QCoreApplication::applicationName());
 
-  mTray.setContextMenu(&mTrayMenu);
-  mTray.show();
+  mTray->setContextMenu(mTrayMenu.get());
+  mTray->show();
 
   // Set the wallpaper on startup
   mWallpaperGetter->refreshWallpaperWithProgress();
@@ -130,7 +133,7 @@ Application::~Application()
  */
 void Application::showTrayMessage(QString message)
 {
-  mTray.showMessage(tr("Logos Wallpaper Updater"), message);
+  mTray->showMessage(tr("Logos Wallpaper Updater"), message);
 }
 
 /**

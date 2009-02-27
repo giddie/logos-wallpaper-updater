@@ -37,12 +37,10 @@ find_package(Qt4 REQUIRED)
 set(QT_USE_QTNETWORK 1)
 include(${QT_USE_FILE})
 
-
 #################################################
 # Includes and Defines
 #################################################
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 
 #################################################
 # Targets
@@ -56,22 +54,6 @@ file(GLOB APP_QRCS resources/*.qrc)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/source/defines.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/defines.h)
-
-if (APPLE)
-  file(GLOB APP_MAC_RESOURCES mac/Resources/*)
-  set_source_files_properties(
-    ${APP_MAC_RESOURCES}
-    PROPERTIES
-    MACOSX_PACKAGE_LOCATION Resources
-  )
-  file(GLOB APP_MAC_SCRIPTS mac/Scripts/*)
-  set_source_files_properties(
-    ${APP_MAC_SCRIPTS}
-    PROPERTIES
-    MACOSX_PACKAGE_LOCATION Resources/Scripts
-  )
-  set(APP_MAC_FILES ${APP_MAC_RESOURCES} ${APP_MAC_SCRIPTS})
-endif (APPLE)
 
 if (WIN32)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/win/installer.nsi.cmake
@@ -89,11 +71,10 @@ qt4_wrap_ui(APP_UIS_H ${APP_UIS})
 qt4_add_resources(APP_RESOURCES ${APP_QRCS})
 qt4_automoc(${APP_SOURCES})
 
-add_executable(${CMAKE_PROJECT_NAME} WIN32 MACOSX_BUNDLE
+add_executable(${CMAKE_PROJECT_NAME} WIN32
   ${APP_UIS_H}
   ${APP_SOURCES}
   ${APP_RESOURCES}
-  ${APP_MAC_FILES}
   ${APP_WINDOWS_RESFILE}
 )
 target_link_libraries(${CMAKE_PROJECT_NAME}
@@ -101,11 +82,31 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 )
 
 if (APPLE)
-  set_target_properties(${CMAKE_PROJECT_NAME}
-    PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist
+  set(TEMP_BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/bundle)
+  set(REAL_BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/${APP_LONGNAME}.app)
+  set(EXEC_DIR ${TEMP_BUNDLE}/Contents/MacOS)
+  add_custom_target(bundle
+    COMMAND rm -rf ${TEMP_BUNDLE}
+    COMMAND cp -R ${CMAKE_CURRENT_SOURCE_DIR}/mac/bundle ${TEMP_BUNDLE}
+    COMMAND mkdir -p ${EXEC_DIR}
+    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME} ${EXEC_DIR}
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mac/qtbundle ${TEMP_BUNDLE}
+    COMMAND rm -rf ${REAL_BUNDLE}
+    COMMAND mv ${TEMP_BUNDLE} ${REAL_BUNDLE}
   )
-  add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mac/qtbundle ${CMAKE_PROJECT_NAME}.app
+  add_dependencies(bundle ${CMAKE_PROJECT_NAME})
+
+  set(IMAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/image)
+  set(FINAL_IMAGE ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}.dmg)
+  add_custom_target(package
+    COMMAND echo "Building disk image..."
+    COMMAND rm -rf ${IMAGE_DIR}
+    COMMAND mkdir ${IMAGE_DIR}
+    COMMAND cp -R ${REAL_BUNDLE} ${IMAGE_DIR}
+    COMMAND cp -R ${CMAKE_BINARY_DIR}/Licence.txt ${IMAGE_DIR}
+    COMMAND hdiutil create -ov -srcfolder ${IMAGE_DIR} -format UDBZ
+                           -volname ${APP_LONGNAME} ${FINAL_IMAGE}
+    COMMAND rm -rf ${IMAGE_DIR}
   )
+  add_dependencies(package bundle)
 endif (APPLE)

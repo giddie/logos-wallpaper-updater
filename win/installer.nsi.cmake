@@ -82,7 +82,8 @@ Section Install
         ExecWait '"$INSTDIR\${APP_SHORTNAME}.exe" --quit'
         Goto notrunning
       quitmanually:
-        MessageBox MB_OK "Please ensure that ${APP_LONGNAME} is closed and click OK to continue."
+        KillProcDLL::KillProc "${APP_SHORTNAME}.exe"
+        Sleep 1000
   notrunning:
 
   ; The current version is able to remote-quit

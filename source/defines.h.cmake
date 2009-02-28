@@ -26,8 +26,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define APP_NAME "Logos Wallpaper Updater"
-#define APP_VERSION "1.1.1"
+#define APP_NAME "@APP_LONGNAME@"
+#define APP_VERSION "@APP_VERSION@"
 
 #ifdef Q_WS_MAC
 #define MACOS_X 1

@@ -117,7 +117,8 @@ void InstanceManager::tellServerToQuit(QLocalSocket* socket)
   stream << "quit\n";
   stream.flush();
   // The server will reply "ok" when it has closed the server
-  socket->waitForReadyRead();
+  // It seems that in Windows the remote closes before it can respond
+  socket->waitForReadyRead(5000);
   stream.readLine();  // consume response
 }
 

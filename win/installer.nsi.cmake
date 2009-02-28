@@ -69,10 +69,12 @@ Var StartMenuFolder
 ; Languages
 !insertmacro MUI_LANGUAGE "English"
 
-Section Install
-  SetOutPath "$INSTDIR"
-
-  ; If there is an existing installation, ensure that it's not running
+;==
+; Ensure that the application is not running.
+; NOTE: This can be destructive, as we test for running status by trying to
+;       delete the application
+;==
+!macro ensureNotRunning
   IfFileExists "$INSTDIR\${APP_SHORTNAME}.exe" 0 notrunning
     Delete "$INSTDIR\${APP_SHORTNAME}.exe"
     IfErrors 0 notrunning
@@ -80,11 +82,22 @@ Section Install
       ReadRegStr $0 HKLM "Software\${APP_LONGNAME}" "canRemoteQuit"
       StrCmp $0 "true" 0 quitmanually
         ExecWait '"$INSTDIR\${APP_SHORTNAME}.exe" --quit'
-        Goto notrunning
+        Sleep 1000
+        ; There should be no running instance now, but we make sure
       quitmanually:
         KillProcDLL::KillProc "${APP_SHORTNAME}.exe"
         Sleep 1000
   notrunning:
+!macroend
+
+;==
+; Installation
+;==
+Section Install
+  SetOutPath "$INSTDIR"
+
+  ; If there is an existing installation, ensure that it's not running
+  !insertmacro ensureNotRunning
 
   ; The current version is able to remote-quit
   WriteRegStr HKLM "Software\${APP_LONGNAME}" "canRemoteQuit" "true"
@@ -122,8 +135,11 @@ Section Install
                  "$INSTDIR\${APP_SHORTNAME}.exe"
 SectionEnd
 
+;==
+; Uninstallation
+;==
 Section Uninstall
-  ExecWait '"$INSTDIR\${APP_SHORTNAME}.exe" --quit'
+  !insertmacro ensureNotRunning
 
   Delete "$INSTDIR\Licence.txt"
 

@@ -30,7 +30,6 @@
 #include "application.moc"
 #include "defines.h"
 #include "applicationUpdater.h"
-#include "instanceManager.h"
 
 
 /**
@@ -48,19 +47,6 @@ Application::Application(int& argc, char** argv)
 {
   QCoreApplication::setOrganizationName("Operation Mobilisation");
   QCoreApplication::setApplicationName("Logos Wallpaper Updater");
-
-  QStringList appArgs = Application::arguments();
-
-  // This object will ensure we only have one running instance
-  InstanceManager* instanceManager =
-    new InstanceManager("logos-wallpaper-updater", this);
-  if (appArgs.size() > 1 && appArgs[1] == "--quit") {
-    connect(instanceManager, SIGNAL(singleInstanceAssured()),
-            this, SLOT(quit()), Qt::QueuedConnection);
-    instanceManager->ensureSingleInstance(InstanceManager::ThisInstanceWins);
-  } else {
-    instanceManager->ensureSingleInstance(InstanceManager::HighestVersionWins);
-  }
 
   setQuitOnLastWindowClosed(false);
 

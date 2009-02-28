@@ -27,10 +27,23 @@
  */
 
 #include "application.h"
+#include "instanceManager.h"
 
 
 int main(int argc, char* argv[])
 {
   Application app(argc, argv);
+  QStringList appArgs = Application::arguments();
+
+  // This object will ensure we only have one running instance
+  InstanceManager instanceManager("logos-wallpaper-updater");
+  if (appArgs.size() > 1 && appArgs[1] == "--quit") {
+    bool success = instanceManager.
+                     ensureSingleInstance(InstanceManager::ThisInstanceWins);
+    return success ? 0 : 1;
+  } else {
+    instanceManager.ensureSingleInstance(InstanceManager::HighestVersionWins);
+  }
+
   return app.exec();
 }

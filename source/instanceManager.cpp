@@ -37,8 +37,7 @@ InstanceManager::InstanceManager(QString key, QObject* parent)
   : QObject(parent),
     mKey(key),
     mReadyReadMapper(NULL),
-    mServer(NULL),
-    mSocket(NULL)
+    mServer(NULL)
 {
   mSharedMemory.setKey(mKey);
   if (!mSharedMemory.attach()) {
@@ -62,67 +61,83 @@ InstanceManager::~InstanceManager()
 /**
  * Sets in motion the communication necessary to ensure that only one instance
  * survives.
+ * @returns true if a single instance is assured, false if it was not possible
+ *          to enforce the policy
  */
-void InstanceManager::ensureSingleInstance(ResolutionScheme scheme)
+bool InstanceManager::ensureSingleInstance(ResolutionScheme scheme)
 {
   // If the server exists, it's because we're already the dominant instance
   if (mServer) {
-    emit singleInstanceAssured();
-  } else {
-    mSocket = new QLocalSocket(this);
-    // Make sure the socket is deleted after it's used
-    connect(mSocket, SIGNAL(error(QLocalSocket::LocalSocketError)),
-            mSocket, SLOT(deleteLater()));
-    connect(mSocket, SIGNAL(disconnected()), mSocket, SLOT(deleteLater()));
-
-    char* connectSlot;
-    switch (scheme) {
-      case ThisInstanceWins:
-        connectSlot = SLOT(connected_thisInstanceWins());
-        break;
-      case HighestVersionWins:
-      default:
-        connectSlot = SLOT(connected_higestVersionWins());
-        break;
-    }
-    connect(mSocket, SIGNAL(connected()), this, connectSlot);
-    mSocket->connectToServer(mKey);
+    return true;
   }
-}
 
-/**
- * Called when a connection to the remote server is successful
- */
-void InstanceManager::connected_higestVersionWins()
-{
-  // Ask the remote for its version number
-  QTextStream stream(mSocket);
-  stream << "version\n";
-  stream.flush();
-  mSocket->waitForReadyRead();
-  QString remoteVersion = stream.readLine();
-
-  // Only the instance with the higher version number can remain
-  if (remoteVersion < APP_VERSION) {
-    tellServerToQuit();
+  QLocalSocket socket;
+  socket.connectToServer(mKey);
+  if (!socket.waitForConnected(10000)) {
+    // No remote server? Let's try starting our own.
     startServer();
-  } else {
-    QTimer::singleShot(0, qApp, SLOT(quit()));
+    return false;
   }
 
-  mSocket->disconnectFromServer();
+  switch (scheme) {
+    case ThisInstanceWins:
+      tellServerToQuit(&socket);
+      break;
+
+    case HighestVersionWins:
+    default:
+      QTextStream stream(&socket);
+      stream << "version\n";
+      stream.flush();
+      socket.waitForReadyRead();
+      QString remoteVersion = stream.readLine();
+
+      if (remoteVersion < APP_VERSION) {
+        tellServerToQuit(&socket);
+        startServer();
+      } else {
+        QTimer::singleShot(0, qApp, SLOT(quit()));
+      }
+      break;
+  }
+
+  socket.disconnectFromServer();
+  socket.waitForDisconnected();
+
+  return true;
 }
 
 /**
- * Called when a connection to the remote server is successful
+ * Uses the provided socket to instruct the remote instance to quit
+ * @param socket The socket to use
  */
-void InstanceManager::connected_thisInstanceWins()
+void InstanceManager::tellServerToQuit(QLocalSocket* socket)
 {
-  // Tell the remote to quit
-  tellServerToQuit();
-  startServer();
+  QTextStream stream(socket);
+  stream << "quit\n";
+  stream.flush();
+  // The server will reply "ok" when it has closed the server
+  socket->waitForReadyRead();
+  stream.readLine();  // consume response
+}
 
-  mSocket->disconnectFromServer();
+/**
+ * Starts a local socket server
+ */
+void InstanceManager::startServer()
+{
+  mServer = new QLocalServer(this);
+
+  if (mServer->listen(mKey)) {
+    mReadyReadMapper = new QSignalMapper(this);
+    connect(mReadyReadMapper, SIGNAL(mapped(QObject*)),
+            this, SLOT(serverReadyRead(QObject*)));
+    connect(mServer, SIGNAL(newConnection()), this, SLOT(serverConnection()));
+  } else {
+    qWarning() << "Unable to start local socket server:" <<
+                  mServer->errorString();
+    delete mServer;
+  }
 }
 
 /**
@@ -157,38 +172,4 @@ void InstanceManager::serverReadyRead(QObject* socketObject)
       stream.flush();
     }
   }
-}
-
-/**
- * Starts a local socket server
- */
-void InstanceManager::startServer()
-{
-  mServer = new QLocalServer(this);
-
-  if (mServer->listen(mKey)) {
-    mReadyReadMapper = new QSignalMapper(this);
-    connect(mReadyReadMapper, SIGNAL(mapped(QObject*)),
-            this, SLOT(serverReadyRead(QObject*)));
-    connect(mServer, SIGNAL(newConnection()), this, SLOT(serverConnection()));
-    emit singleInstanceAssured();
-  } else {
-    qWarning() << "Unable to start local socket server:" <<
-                  mServer->errorString();
-    delete mServer;
-    mServer = NULL;
-  }
-}
-
-/**
- * Uses the connected mSocket to instruct the remote instance to quit
- */
-void InstanceManager::tellServerToQuit()
-{
-  QTextStream stream(mSocket);
-  stream << "quit\n";
-  stream.flush();
-  // The server will reply "ok" when it has closed the server
-  mSocket->waitForReadyRead();
-  stream.readLine();  // consume response
 }

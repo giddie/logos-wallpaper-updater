@@ -82,6 +82,14 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   ${QT_LIBRARIES}
 )
 
+if (WIN32)
+  # Suppress warnings when compiling with GCC 4.3 in Windows
+  # See GCC Bug 34749
+  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+    COMPILE_FLAGS -Wno-attributes
+    LINK_FLAGS -Wl,--enable-auto-import)
+endif (WIN32)
+
 if (APPLE)
   set(TEMP_BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/bundle)
   set(REAL_BUNDLE ${CMAKE_CURRENT_BINARY_DIR}/${APP_LONGNAME}.app)

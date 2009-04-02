@@ -41,15 +41,15 @@ ApplicationUpdater::ApplicationUpdater(QObject* parent)
     mUpdateData(),
     mUpdateFileMirrors(
       QStringList() <<
-        "http://github.com/giddie/update-files/raw/master/"
-          "logos-wallpaper-updater.txt" <<
+        "http://cloud.github.com/downloads/giddie/logos-wallpaper-updater/"
+          "updates.txt" <<
         "http://www.danns.co.uk/webfm_send/57")
 {
   connect(&mManager, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(downloadFinished(QNetworkReply*)));
 
-  // Check for new version every 5 hours
-  startTimer(5 * 60 * 60 * 1000);
+  // Check for new version every hour
+  startTimer(60 * 60 * 1000);
 
   // Check straight away as well
   checkForNewVersion();

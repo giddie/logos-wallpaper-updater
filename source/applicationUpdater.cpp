@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2008, Paul Gideon Dann
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -29,6 +29,7 @@
 #include "applicationUpdater.moc"
 #include "application.h"
 #include "defines.h"
+#include "versionNumber.h"
 
 
 /**
@@ -87,7 +88,7 @@ void ApplicationUpdater::downloadFinished(QNetworkReply* reply)
   }
 
   if (mUpdateData["Application"] == APP_NAME) {
-    if (mUpdateData["Version"] > APP_VERSION) {
+    if (VersionNumber(mUpdateData["Version"]) > VersionNumber(APP_VERSION)) {
       emit newVersionAvailable();
       qobject_cast<Application*>(qApp)->
         showTrayMessage(tr("There is a new version of the "

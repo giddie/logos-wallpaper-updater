@@ -28,6 +28,7 @@
 
 #include "instanceManager.moc"
 #include "defines.h"
+#include "versionNumber.h"
 
 
 /**
@@ -92,7 +93,7 @@ bool InstanceManager::ensureSingleInstance(ResolutionScheme scheme)
       socket.waitForReadyRead();
       QString remoteVersion = stream.readLine();
 
-      if (remoteVersion < APP_VERSION) {
+      if (VersionNumber(remoteVersion) < VersionNumber(APP_VERSION)) {
         tellServerToQuit(&socket);
         startServer();
       } else {

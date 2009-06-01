@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2008, Paul Gideon Dann
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -49,14 +49,18 @@ class Application : public QApplication
     void showTrayMessage(QString message);
 
   private slots:
+    void showAboutDialog();
+    void showHelpDialog();
     void openWebsite() const;
     void unhideAppUpgradeActionGroup();
     void updateInterval();
     void wallpaperSet();
 
   private:
-    shared_ptr<AboutDialog> mAboutDialog;
-    shared_ptr<HelpDialog> mHelpDialog;
+    template<class T>
+      void showDialog(QPointer<T>* dialogPointer, bool* createdNewPtr = 0);
+    QPointer<AboutDialog> mAboutDialog;
+    QPointer<HelpDialog> mHelpDialog;
     shared_ptr<QSystemTrayIcon> mTray;
     shared_ptr<QMenu> mTrayMenu;
     QActionGroup* mAppUpgradeActionGroup;

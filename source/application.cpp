@@ -40,8 +40,8 @@
  */
 Application::Application(int argc, char* argv[])
   : QApplication(argc, argv),
-    mAboutDialog(new AboutDialog()),
-    mHelpDialog(new HelpDialog()),
+    mAboutDialog(0),
+    mHelpDialog(0),
     mTray(new QSystemTrayIcon()),
     mTrayMenu(new QMenu()),
     mAppUpgradeActionGroup(NULL),
@@ -60,10 +60,6 @@ Application::Application(int argc, char* argv[])
   mWallpaperGetter = new WallpaperGetter(this);
   connect(mWallpaperGetter, SIGNAL(wallpaperSet()),
           this, SLOT(wallpaperSet()));
-
-  // Dialogs
-  connect(mHelpDialog.get(), SIGNAL(clearCache()),
-          mWallpaperGetter, SLOT(clearCache()));
 
   // System tray menu
   QAction* action;
@@ -93,10 +89,10 @@ Application::Application(int argc, char* argv[])
 
   action = mTrayMenu->addAction(tr("Help"));
   connect(action, SIGNAL(triggered(bool)),
-          mHelpDialog.get(), SLOT(show()));
+          this, SLOT(showHelpDialog()));
   action = mTrayMenu->addAction(tr("About"));
   connect(action, SIGNAL(triggered(bool)),
-          mAboutDialog.get(), SLOT(show()));
+          this, SLOT(showAboutDialog()));
   action = mTrayMenu->addAction(tr("Quit"));
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(quit()));
@@ -126,6 +122,64 @@ Application::Application(int argc, char* argv[])
  */
 Application::~Application()
 {
+}
+
+/**
+ * Opens a QDialog of type T, or focuses it if it is already open.
+ * This method creates a dialog of the specified type, and stores a pointer to
+ *   it in the provided QPointer.  When the dialog is destroyed, the QPointer
+ *   becomes null.  The dialog is automatically destroyed when it's closed.  If
+ *   the method is called and the specified pointer is not null, the dialog is
+ *   raised instead.
+ * \arg \c dialogPointer Pointer to a QPointer for a QDialog
+ * \arg \c createdNew If provided, the bool is set to true if a new dialog was
+                      created, false if an old one was raised.
+ */
+template<class T>
+void Application::showDialog(QPointer<T>* dialogPointer, bool* createdNewPtr)
+{
+  // Ensure that T inherits from QDialog
+  const QDialog* check = *dialogPointer;
+
+  QPointer<T>& dialog = *dialogPointer;
+  bool createdNew = false;
+
+  if (dialog) {
+    dialog->activateWindow();
+    dialog->raise();
+  } else {
+    dialog = new T();
+    connect(this, SIGNAL(destroyed()),
+            dialog, SLOT(deleteLater()));
+    connect(dialog, SIGNAL(finished(int)),
+            dialog, SLOT(deleteLater()));
+    dialog->show();
+    createdNew = true;
+  }
+  if (createdNewPtr) {
+    *createdNewPtr = createdNew;
+  }
+}
+
+/**
+ * Opens the about dialog, or focuses it if it is already open
+ */
+void Application::showAboutDialog()
+{
+  showDialog<AboutDialog>(&mAboutDialog);
+}
+
+/**
+ * Opens the help dialog, or focuses it if it is already open
+ */
+void Application::showHelpDialog()
+{
+  bool createdNew;
+  showDialog<HelpDialog>(&mHelpDialog, &createdNew);
+  if (createdNew) {
+    connect(mHelpDialog, SIGNAL(clearCache()),
+            mWallpaperGetter, SLOT(clearCache()));
+  }
 }
 
 /**

@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2008, Paul Gideon Dann
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -30,8 +30,10 @@
 #define WALLPAPERGETTER_H
 
 #include <QtNetwork>
+#include <tr1/memory>
 #include "progressWidget.h"
 
+using namespace std::tr1;
 
 class WallpaperGetter : public QObject
 {
@@ -58,8 +60,8 @@ class WallpaperGetter : public QObject
     void reportWallpaperChange();
 
   private:
-    QNetworkAccessManager mManager;
-    ProgressWidget mProgressWidget;
+    shared_ptr<QNetworkAccessManager> mManager;
+    shared_ptr<ProgressWidget> mProgressWidget;
     QDir mWallpaperDir;
 };
 

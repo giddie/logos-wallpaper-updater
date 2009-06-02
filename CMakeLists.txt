@@ -31,6 +31,11 @@ project(logos-wallpaper)
 set(APP_LONGNAME "Logos Wallpaper Updater")
 set(APP_VERSION "1.1.2")
 
+# If no build type is specified, default to "Release"
+if (NOT CMAKE_BUILD_TYPE)
+  set (CMAKE_BUILD_TYPE Release)
+endif (NOT CMAKE_BUILD_TYPE)
+
 #################################################
 # Configuration
 #################################################
@@ -39,9 +44,10 @@ set(QT_USE_QTNETWORK 1)
 include(${QT_USE_FILE})
 
 #################################################
-# Includes and Defines
+# Includes, Defines, and Flags
 #################################################
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
 
 #################################################
 # Targets

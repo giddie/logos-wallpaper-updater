@@ -31,9 +31,6 @@
 
 #include <QApplication>
 #include <QtGui>
-#include <tr1/memory>
-
-using namespace std::tr1;
 
 class AboutDialog;
 class HelpDialog;
@@ -61,8 +58,8 @@ class Application : public QApplication
       void showDialog(QPointer<T>* dialogPointer, bool* createdNewPtr = 0);
     QPointer<AboutDialog> mAboutDialog;
     QPointer<HelpDialog> mHelpDialog;
-    shared_ptr<QSystemTrayIcon> mTray;
-    shared_ptr<QMenu> mTrayMenu;
+    QScopedPointer<QSystemTrayIcon> mTray;
+    QScopedPointer<QMenu> mTrayMenu;
     QActionGroup* mAppUpgradeActionGroup;
     WallpaperGetter* mWallpaperGetter;
     int mCurrentWallpaperMonth;

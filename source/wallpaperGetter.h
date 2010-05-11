@@ -30,11 +30,8 @@
 #define WALLPAPERGETTER_H
 
 #include <QtNetwork>
-#include <tr1/memory>
 #include "progressWidget.h"
 #include "defines.h"
-
-using namespace std::tr1;
 
 class WallpaperGetter : public QObject
 {
@@ -62,8 +59,8 @@ class WallpaperGetter : public QObject
     void reportWallpaperChange();
 
   private:
-    shared_ptr<QNetworkAccessManager> mManager;
-    shared_ptr<ProgressWidget> mProgressWidget;
+    QSharedPointer<QNetworkAccessManager> mManager;
+    QSharedPointer<ProgressWidget> mProgressWidget;
     QDir mWallpaperDir;
 };
 

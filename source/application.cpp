@@ -78,7 +78,7 @@ Application::Application(int argc, char* argv[])
   connect(action, SIGNAL(triggered(bool)),
           this, SLOT(openWebsite()));
 
-  mAppUpgradeActionGroup = new QActionGroup(mTrayMenu.get());
+  mAppUpgradeActionGroup = new QActionGroup(mTrayMenu.data());
   mAppUpgradeActionGroup->setVisible(false);
   connect(appUpdater, SIGNAL(newVersionAvailable()),
           this, SLOT(unhideAppUpgradeActionGroup()));
@@ -111,7 +111,7 @@ Application::Application(int argc, char* argv[])
   }
   mTray->setToolTip(QCoreApplication::applicationName());
 
-  mTray->setContextMenu(mTrayMenu.get());
+  mTray->setContextMenu(mTrayMenu.data());
   mTray->show();
 
   // Set the wallpaper on startup
@@ -155,7 +155,7 @@ void Application::showDialog(QPointer<T>* dialogPointer, bool* createdNewPtr)
     dialog->raise();
   } else {
     dialog = new T();
-    connect(this, SIGNAL(destroyed()),
+    connect(qApp, SIGNAL(aboutToQuit()),
             dialog, SLOT(deleteLater()));
     connect(dialog, SIGNAL(finished(int)),
             dialog, SLOT(deleteLater()));

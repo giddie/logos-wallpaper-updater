@@ -51,10 +51,10 @@ WallpaperGetter::WallpaperGetter(QObject* parent)
                             mProgressWidget->height() / 2);
   mProgressWidget->move(topLeft);
 
-  connect(mManager.get(), SIGNAL(finished(QNetworkReply*)),
+  connect(mManager.data(), SIGNAL(finished(QNetworkReply*)),
           this, SLOT(loadingFinished(QNetworkReply*)));
-  connect(mManager.get(), SIGNAL(finished(QNetworkReply*)),
-          mProgressWidget.get(), SLOT(hide()));
+  connect(mManager.data(), SIGNAL(finished(QNetworkReply*)),
+          mProgressWidget.data(), SLOT(hide()));
 }
 
 /**
@@ -111,7 +111,7 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
   } else {
     QNetworkReply* reply = mManager->get(QNetworkRequest(url));
     connect(reply, SIGNAL(downloadProgress(qint64, qint64)),
-            mProgressWidget.get(), SLOT(setProgress(qint64, qint64)));
+            mProgressWidget.data(), SLOT(setProgress(qint64, qint64)));
 
     // If we're going to display a message when done, we tag the reply
     if (progressReportType == REPORT_WHEN_DONE) {

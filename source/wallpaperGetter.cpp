@@ -29,7 +29,6 @@
 #include <QtGui>
 #include "wallpaperGetter.moc"
 #include "application.h"
-#include "defines.h"
 
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -103,9 +102,11 @@ void WallpaperGetter::refreshWallpaper(ProgressReportType progressReportType)
   QFile file(mWallpaperDir.path() + "/" + filename);
 
   if (file.exists()) {
-    setWallpaper(file);
-    if (progressReportType == REPORT_WHEN_DONE) {
-      reportWallpaperChange();
+    if (canSetWallpaper()) {
+      setWallpaper(file);
+      if (progressReportType == REPORT_WHEN_DONE) {
+        reportWallpaperChange();
+      }
     }
   } else {
     QNetworkReply* reply = mManager->get(QNetworkRequest(url));
@@ -178,7 +179,17 @@ void WallpaperGetter::loadingFinished(QNetworkReply* reply)
   file.write(reply->readAll());
   file.close();
 
-  setWallpaper(file);
+  if (canSetWallpaper()) {
+    setWallpaper(file);
+  } else {
+    const QString message =
+      tr("Your wallpaper has been downloaded to the following directory:\n\n%1"
+         "\n\nRegrettably, %2 is not currently able to set the wallpaper on "
+         "your platform, so you will have to make your own arrangements for "
+         "your wallpaper to be updated when a new image is downloaded.").
+        arg(mWallpaperDir.path()).arg(APP_NAME);
+    mProgressWidget->reportSuccess(message);
+  }
 
   // Display a message if requested
   if (reply->property("reportWhenDone").toBool()) {
@@ -239,10 +250,6 @@ void WallpaperGetter::setWallpaper(QFile& file)
     SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (void*)pathByteArray.data(),
                           SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 #endif
-  } else {
-    mProgressWidget->
-      reportError(tr("This platform is not supported; "
-                     "unable to set the wallpaper."));
   }
   emit wallpaperSet();
 }

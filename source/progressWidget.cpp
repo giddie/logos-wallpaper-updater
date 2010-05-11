@@ -56,6 +56,17 @@ void ProgressWidget::setProgress(qint64 value, qint64 total)
 }
 
 /**
+ * Reports a success
+ */
+void ProgressWidget::reportSuccess(QString messageString)
+{
+  // This widget may not be showing, in which case we won't show the message
+  if (isVisible()) {
+    QMessageBox::information(this, tr("Success"), messageString);
+  }
+}
+
+/**
  * Reports an error
  */
 void ProgressWidget::reportError(QString errorString)

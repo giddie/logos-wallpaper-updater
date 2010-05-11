@@ -64,7 +64,13 @@ Application::Application(int argc, char* argv[])
   // System tray menu
   QAction* action;
 
-  action = mTrayMenu->addAction(tr("Set wallpaper"));
+  QString actionName;
+  if (WallpaperGetter::canSetWallpaper()) {
+    actionName = tr("Set wallpaper");
+  } else {
+    actionName = tr("Get wallpaper");
+  }
+  action = mTrayMenu->addAction(actionName);
   connect(action, SIGNAL(triggered(bool)),
           mWallpaperGetter, SLOT(refreshWallpaperWithProgress()));
 

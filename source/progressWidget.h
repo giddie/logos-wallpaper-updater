@@ -43,6 +43,7 @@ class ProgressWidget : public QWidget
 
   public slots:
     void setProgress(qint64 value, qint64 total);
+    void reportSuccess(QString messageString);
     void reportError(QString errorString);
 
   private:

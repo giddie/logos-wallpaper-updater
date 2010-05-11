@@ -32,6 +32,7 @@
 #include <QtNetwork>
 #include <tr1/memory>
 #include "progressWidget.h"
+#include "defines.h"
 
 using namespace std::tr1;
 
@@ -40,6 +41,7 @@ class WallpaperGetter : public QObject
   Q_OBJECT
 
   public:
+    static const bool canSetWallpaper() { return MACOS_X || WINDOWS; }
     WallpaperGetter(QObject* parent = 0);
     ~WallpaperGetter();
     enum ProgressReportType { REPORT_WHEN_DONE, SHOW_PROGRESS_WIDGET };

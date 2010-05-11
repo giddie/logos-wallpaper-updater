@@ -29,6 +29,12 @@
 #define APP_NAME "@APP_LONGNAME@"
 #define APP_VERSION "@APP_VERSION@"
 
+#ifdef Q_WS_X11
+#define UNIX 1
+#else
+#define UNIX 0
+#endif
+
 #ifdef Q_WS_MAC
 #define MACOS_X 1
 #else

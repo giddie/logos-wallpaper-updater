@@ -3,6 +3,8 @@
 # Original Author: Paul Gideon Dann <pdgiddie@gmail.com>
 ###
 
+INTEL_ONLY=TRUE
+
 ##
 # Sanity checks
 ##
@@ -85,7 +87,11 @@ for framework in $REQUIRED_QT_MODULES; do
   else
     SOURCE_FILE=/Library/Frameworks/$framework
   fi
-  cp $SOURCE_FILE $DESTINATION_DIR
+  if [[ $INTEL_ONLY == TRUE ]]; then
+    ditto --arch i386 $SOURCE_FILE $DESTINATION_DIR
+  else
+    cp $SOURCE_FILE $DESTINATION_DIR
+  fi
   localName $DESTINATION_FILE
   install_name_tool -id $LOCAL_NAME $DESTINATION_FILE
   fixDependencyPaths $DESTINATION_FILE

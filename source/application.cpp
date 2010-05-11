@@ -195,7 +195,7 @@ void Application::showTrayMessage(QString message)
  */
 void Application::openWebsite() const
 {
-  QDesktopServices::openUrl(QUrl("http://www.logoshope.com"));
+  QDesktopServices::openUrl(QUrl("http://www.omships.com"));
 }
 
 /**

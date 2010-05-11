@@ -40,7 +40,7 @@ fixDependencyPaths() {
   # leading spaces), and the following slash excludes lines beginning with
   # @executable_path
   QT_DEPENDS=`otool -L $1 2> /dev/null | \
-              grep -e "[[:space:]]\+/.*\/Qt.*\.framework" | awk '{print $1}'`
+              grep -e "[[:space:]]\+\(.*\/\)\?Qt.*\.framework" | awk '{print $1}'`
   if [[ $? == 0 ]]; then
     for dependency in $QT_DEPENDS; do
       # Only add to required modules if it's not already there
@@ -80,7 +80,12 @@ for framework in $REQUIRED_QT_MODULES; do
   DESTINATION_FILE="$1/Contents/Frameworks/"$NAME_STUB
   DESTINATION_DIR=`echo $DESTINATION_FILE | sed 's_\(.*\)\/.*$_\1_'`
   mkdir -p $DESTINATION_DIR
-  cp $framework $DESTINATION_DIR
+  if [[ -f $framework ]]; then
+    SOURCE_FILE=$framework
+  else
+    SOURCE_FILE=/Library/Frameworks/$framework
+  fi
+  cp $SOURCE_FILE $DESTINATION_DIR
   localName $DESTINATION_FILE
   install_name_tool -id $LOCAL_NAME $DESTINATION_FILE
   fixDependencyPaths $DESTINATION_FILE

@@ -41,7 +41,7 @@ InstallDirRegKey HKLM "Software\${APP_LONGNAME}" ""
 SetCompressor /SOLID lzma
 
 ; Request application privileges for Windows Vista
-RequestExecutionLevel user
+RequestExecutionLevel admin
 
 ; Variables
 Var StartMenuFolder

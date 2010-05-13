@@ -108,6 +108,7 @@ Section Install
   File "${APP_SHORTNAME}.exe"
 
   File "${QT_DLL_DIR}\mingwm10.dll"
+  File "${QT_DLL_DIR}\libgcc_s_dw2-1.dll"
 
   File "qt.conf"
   File "${QT_DLL_DIR}\QtCore4.dll"
@@ -147,6 +148,7 @@ Section Uninstall
   Delete "$INSTDIR\${APP_SHORTNAME}.exe"
 
   Delete "$INSTDIR\mingwm10.dll"
+  Delete "$INSTDIR\libgcc_s_dw2-1.dll"
 
   Delete "$INSTDIR\qt.conf"
   Delete "$INSTDIR\QtCore4.dll"

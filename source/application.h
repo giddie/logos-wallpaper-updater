@@ -41,7 +41,7 @@ class Application : public QApplication
   Q_OBJECT
 
   public:
-    Application(int argc, char* argv[]);
+    Application(int& argc, char* argv[]);
     ~Application();
     void showTrayMessage(QString message);
 

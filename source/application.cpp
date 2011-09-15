@@ -38,7 +38,7 @@
 /**
  * Constructor
  */
-Application::Application(int argc, char* argv[])
+Application::Application(int& argc, char* argv[])
   : QApplication(argc, argv),
     mAboutDialog(0),
     mHelpDialog(0),

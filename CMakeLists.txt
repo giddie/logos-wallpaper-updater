@@ -29,7 +29,7 @@
 cmake_minimum_required(VERSION 2.6.2)
 project(logos-wallpaper)
 set(APP_LONGNAME "Logos Wallpaper Updater")
-set(APP_VERSION "1.2")
+set(APP_VERSION "1.3")
 
 # If no build type is specified, default to "Release"
 if (NOT CMAKE_BUILD_TYPE)

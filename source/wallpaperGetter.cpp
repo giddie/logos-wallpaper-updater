@@ -234,15 +234,10 @@ void WallpaperGetter::setWallpaper(QFile& file)
     proc.start("./setWallpaper", QStringList() << file.fileName());
     proc.waitForFinished();
   } else if (WINDOWS) {
-    // Convert the JPG to BMP (because Windows is stupid)
+    // Convert the JPG to BMP (for older versions of Windows)
     QString path = file.fileName();
-    QImage image(path);
-
-    // Windows has a specific location set aside for this
-    QString dest =
-      QDesktopServices::storageLocation(QDesktopServices::HomeLocation) +
-      "/Local Settings/Application Data/Microsoft/Wallpaper1.bmp";
-    image.save(dest);
+    QString dest = mWallpaperDir.path() + "/Wallpaper.bmp";
+    QImage(path).save(dest);
 
     // Set the wallpaper using the Win API
     QByteArray pathByteArray = QDir::toNativeSeparators(dest).toLatin1();
